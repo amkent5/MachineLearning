@@ -14,4 +14,6 @@ Web based storage area for awesome machine learning/ AI code projects!
 - [choosing the right estimator (scikit-learn)](http://scikit-learn.org/stable/tutorial/machine_learning_map/index.html)
 
 
+### Screenshots:
+
 ![alt text](https://github.com/amkent5/MachineLearning/blob/master/Building%20Machine%20Learning%20Systems/Images/ScikitLearn_AlgCheatSheet.png)
