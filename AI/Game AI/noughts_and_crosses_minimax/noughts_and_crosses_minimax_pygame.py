@@ -5,15 +5,12 @@
 def factorial(n):
 
 	print 'n: ', n
-
 	if n == 1:
 		return 1
 	else:
 		return n * factorial(n - 1)
 #print factorial(5)
 """
-
-# build a random move AI as a starting point
 
 import pygame
 import random
