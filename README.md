@@ -25,4 +25,4 @@ Neural Network from scratch:
 ![alt text](https://github.com/amkent5/MachineLearning/blob/master/AI/AI_Images/NNet.png)
 
 LSTM Sequence shifting:
-
+![alt text](https://github.com/amkent5/MachineLearning/blob/master/AI/AI_Images/LSTM_initiators.png)
