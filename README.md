@@ -1,4 +1,4 @@
-# Ash's Machine Learning and AI repository
+# Data Science Repo - Machine Learning and Deep Learning
 ![alt text](https://github.com/amkent5/MachineLearning/blob/master/Building%20Machine%20Learning%20Systems/Images/SVM_Image.png)
 
 **Controlled repository for machine learning projects**
