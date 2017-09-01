@@ -15,9 +15,14 @@ Web based storage area for machine learning/ AI code projects.
 
 
 ### Screenshots:
-
+Algorithm selection:
 ![alt text](https://github.com/amkent5/MachineLearning/blob/master/Building%20Machine%20Learning%20Systems/Images/ScikitLearn_AlgCheatSheet.png)
 
+Genetic algorithm:
 ![alt text](https://github.com/amkent5/MachineLearning/blob/master/AI/AI_Images/GeneticAlgorithm_Circle.png)
 
+Neural Network from scratch:
 ![alt text](https://github.com/amkent5/MachineLearning/blob/master/AI/AI_Images/NNet.png)
+
+LSTM Sequence shifting:
+
