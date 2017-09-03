@@ -1,5 +1,5 @@
 # Data Science Repo - Machine Learning and Deep Learning
-![alt text](https://github.com/amkent5/MachineLearning/blob/master/Building%20Machine%20Learning%20Systems/Images/SVM_Image.png)
+![alt text](https://github.com/amkent5/MachineLearning/blob/master/AI/AI_Images/Data_science_img.png)
 
 ## About
 
