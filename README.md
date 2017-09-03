@@ -6,7 +6,8 @@
 
 Web based storage area for machine learning/ AI code projects.
 
-### Resources:
+### Resources
+
 - [opencv-python-tutorials](http://opencv-python-tutroals.readthedocs.org/en/latest/py_tutorials/py_ml/py_table_of_contents_ml/py_table_of_contents_ml.html)
 
 - [machinelearningmastery](http://www.machinelearningmastery.com/blog/)
@@ -14,7 +15,8 @@ Web based storage area for machine learning/ AI code projects.
 - [choosing the right estimator (scikit-learn)](http://scikit-learn.org/stable/tutorial/machine_learning_map/index.html)
 
 
-### Screenshots:
+### Screenshots
+
 LSTM Sequence shifting:
 ![alt text](https://github.com/amkent5/MachineLearning/blob/master/AI/AI_Images/LSTM_initiators.png)
 
