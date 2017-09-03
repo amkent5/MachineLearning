@@ -12,7 +12,8 @@ Machine learning is a branch of Data Science whereby machines learn from data. T
 * `Kaggle` - code for all Kaggle competitions I have taken part in
 
 ## Resources
-
+-[Kaggle - "The Home of Data Science & Machine Learning"](https://www.kaggle.com/)
+- [Open Data Science (ODS) Blog](https://opendatascience.com/blog/)
 - [opencv-python-tutorials](http://opencv-python-tutroals.readthedocs.org/en/latest/py_tutorials/py_ml/py_table_of_contents_ml/py_table_of_contents_ml.html)
 - [machinelearningmastery](http://www.machinelearningmastery.com/blog/)
 - [choosing the right estimator (scikit-learn)](http://scikit-learn.org/stable/tutorial/machine_learning_map/index.html)
