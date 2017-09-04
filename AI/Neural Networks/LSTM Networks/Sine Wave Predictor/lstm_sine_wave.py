@@ -94,6 +94,12 @@ for i in range(len(X_test)):
 	predicted = model.predict(curr_frame[newaxis,:,:])[0,0]
 	prediction_seqs.append(predicted)
 
+"""
+We are just predicting the 50th element of each sequence (based on the previous
+49 elements in each sequence.
+Because we have shifted the sequences by 1 each time, the predictions form
+a continuous curve where there is a prediction for each time interval.
+"""
 fig = plt.figure(facecolor='white')
 ax = fig.add_subplot(111)
 ax.plot(y_test, label='True Data')
