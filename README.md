@@ -21,6 +21,9 @@ Machine learning is a branch of Data Science whereby machines learn from data. T
 
 ## Screenshots
 
+t-SNE Dimensionality Reduction:
+![alt text](https://github.com/amkent5/MachineLearning/blob/master/AI/AI_Images/tSNE_plot.png)
+
 LSTM Sequence shifting:
 ![alt text](https://github.com/amkent5/MachineLearning/blob/master/AI/AI_Images/LSTM_initiators.png)
 
