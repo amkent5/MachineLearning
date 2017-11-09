@@ -3,13 +3,13 @@
 
 ## About
 
-Machine learning is a branch of Data Science whereby machines learn from data. This is a controlled storage area for my Data Science projects.
+Data Science is a branch of Artificial Intelligence whereby machines learn from data. This is a controlled storage area for my Data Science projects.
 
 ## Directory structure
 * `AI/Game AI` - game AI algorithms including recursive algorithms like the minimax algorithm
 * `AI/Neural Networks` - MLP's, LSTM RNN's, TensorFlow, Keras and NN's coded from sratch
 * `Building Machine Learning Systems` - course material from Richert and Coelho's [book](https://www.packtpub.com/big-data-and-business-intelligence/building-machine-learning-systems-python)
-* `Kaggle` - code for all Kaggle competitions I have taken part in
+* `Kaggle` - code for some Kaggle competitions I have taken part in
 
 ## Resources
 - [Kaggle - "The Home of Data Science & Machine Learning"](https://www.kaggle.com/)
