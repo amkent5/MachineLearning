@@ -3,7 +3,7 @@
 
 ## About
 
-Data Science is a branch of Artificial Intelligence whereby machines learn from data. This is a controlled storage area for my Data Science projects.
+Machine learning is a branch of artificial intelligence whereby machines learn from data. This is a controlled storage area for my machine learning and data science projects.
 
 ## Directory structure
 * `AI/Game AI` - game AI algorithms including recursive algorithms like the minimax algorithm
