@@ -22,9 +22,9 @@ Machine learning is a branch of artificial intelligence whereby machines learn f
 ## Screenshots
 
 t-SNE Dimensionality Reduction:
-![alt text](https://github.com/amkent5/MachineLearning/blob/master/AI/AI_Images/tSNE_plot.png)
+![alt text](https://github.com/amkent5/MachineLearning/blob/master/AI/AI_Images/otto_tsne.png)
 
-LSTM Sequence shifting:
+LSTM sequence shifting:
 ![alt text](https://github.com/amkent5/MachineLearning/blob/master/AI/AI_Images/LSTM_initiators.png)
 
 Algorithm selection:
