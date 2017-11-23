@@ -1,4 +1,4 @@
-# Lot's of sources say OpenCV is a bitch to install
+# Lots of sources say OpenCV is a bitch to install
 # Second comment on this:
 # https://stackoverflow.com/questions/34853220/cannot-import-cv2-in-python-in-osx
 # provides an easy way
