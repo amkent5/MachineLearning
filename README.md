@@ -24,6 +24,9 @@ Machine learning is a branch of artificial intelligence whereby machines learn f
 t-SNE Dimensionality Reduction:
 ![alt text](https://github.com/amkent5/MachineLearning/blob/master/AI/AI_Images/otto_tsne.png)
 
+Computer vision (template matching OpenCV) where's Wally:
+![alt text](https://github.com/amkent5/MachineLearning/blob/master/AI/AI_Images/template_matching.png)
+
 LSTM sequence shifting:
 ![alt text](https://github.com/amkent5/MachineLearning/blob/master/AI/AI_Images/LSTM_initiators.png)
 
