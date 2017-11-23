@@ -67,6 +67,26 @@ print y_train
 print num_classes
 
 # create the model
+
+"""
+https://ujjwalkarn.me/2016/08/11/intuitive-explanation-convnets/
+
+Conv layers apply a 'filter' matrix  over the image matrix which extracts salient features
+from the image. It creates what is known as a 'feature map'.
+The point of doing this is to make 'features' of the image more prominent to the model.
+
+The ReLu activation is used alongside the Conv layer to deal with non-linearity in the
+images (it is a non-linear function).
+
+The pooling step reduced the dimensionality of the feature map. In max pooling, for every
+2x2 square of elements you just take the max, and recreate the feature map with only the
+maxes from the squares.
+
+A Dense fully connected layer (an MLP) can then be applied as essentially we have isolated high-level
+features of the input image from the convolutional and pooling layers.
+So we just map feature inputs to the output responses.
+"""
+
 model = Sequential()
 model.add(Conv2D(32, (3, 3), input_shape=(32, 32, 3), padding='same', activation='relu', kernel_constraint=maxnorm(3)))
 model.add(Dropout(0.2))
