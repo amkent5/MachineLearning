@@ -30,6 +30,9 @@ Computer vision (template matching OpenCV) where's Wally:
 LSTM sequence shifting:
 ![alt text](https://github.com/amkent5/MachineLearning/blob/master/AI/AI_Images/LSTM_initiators.png)
 
+VGG16 ConvNet for breed identification:
+![alt text](https://github.com/amkent5/MachineLearning/blob/master/AI/AI_Images/VGG16_res.png)
+
 Algorithm selection:
 ![alt text](https://github.com/amkent5/MachineLearning/blob/master/Building%20Machine%20Learning%20Systems/Images/ScikitLearn_AlgCheatSheet.png)
 
