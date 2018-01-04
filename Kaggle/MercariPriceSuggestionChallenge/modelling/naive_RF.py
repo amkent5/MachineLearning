@@ -12,17 +12,16 @@ Features to use:
 * length(item_description)
 """
 
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-
-from string import punctuation
 
 
 
 #-----------------------#
 """	Data Wrangling """
 #-----------------------#
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
 
 # load data into pandas
 datafile = '/Users/admin/Documents/Projects/MachineLearning/Kaggle/MercariPriceSuggestionChallenge/data/train.tsv'
@@ -110,6 +109,71 @@ print df.head(20)
 """	Data Encoding """
 #-----------------------#
 
+import sklearn.preprocessing
+
+# iterate through our features and encode the discrete ones
+i = -1
+for feature in list(df.columns):
+	if feature in ['train_id', 'len_name', 'len_itm_desc', 'price']:
+		continue
+	else:
+		i += 1
+		print feature
+		ser_feature = df[feature]
+
+		# encode the feature space
+		le = sklearn.preprocessing.LabelEncoder()
+		le.fit(ser_feature)
+		trans1 = le.transform(ser_feature)
+		print trans1
+
+		# one-hot/binarize the encoded feature space
+		lb = sklearn.preprocessing.LabelBinarizer()
+		lb.fit(range(max(trans1) + 1))
+		trans2 = lb.transform(trans1)
+		print trans2
+		print trans2.shape
+		print type(trans2)
+		print '\n'
+
+		# concatenate numpy arrays to form our input data
+		if i == 0:
+			encoded_data = trans2
+		else:
+			encoded_data = np.concatenate( (encoded_data, trans2), axis=1 )
+
+print encoded_data.shape	# (1482535, 782) looks good
+
+# now add the continuous features and the target
+npa_len_name = df['len_name'].as_matrix()	# convert series to numpy-array representation
+npa_len_name = np.expand_dims(npa_len_name, axis=1)	# make dimensionality the same ready for concatenation
+encoded_data = np.concatenate( (encoded_data, npa_len_name), axis=1 )	# add to master input array
+
+npa_len_itm_desc = df['len_itm_desc'].as_matrix()
+npa_len_itm_desc = np.expand_dims(npa_len_itm_desc, axis=1)
+encoded_data = np.concatenate( (encoded_data, npa_len_itm_desc), axis=1 )
+
+npa_price = df['price'].as_matrix()
+npa_price = np.expand_dims(npa_price, axis=1)
+encoded_data = np.concatenate( (encoded_data, npa_price), axis=1 )
+
+print encoded_data.shape	# (1482535, 785)
+print encoded_data[:10, :]
+
+
+
+
+#-----------------------#
+"""	Modelling """
+#-----------------------#
+
+import x
+import y
+import z
+
+
+
+
 
 
 
@@ -183,26 +247,3 @@ print model
 words = list(model.wv.vocab)
 print words
 '''
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
