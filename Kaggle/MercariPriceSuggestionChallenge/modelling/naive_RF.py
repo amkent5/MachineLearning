@@ -144,7 +144,7 @@ for feature in list(df.columns):
 
 print encoded_data.shape	# (1482535, 782) looks good
 
-# now add the continuous features and the target
+# now append the continuous features and the target
 npa_len_name = df['len_name'].as_matrix()	# convert series to numpy-array representation
 npa_len_name = np.expand_dims(npa_len_name, axis=1)	# make dimensionality the same ready for concatenation
 encoded_data = np.concatenate( (encoded_data, npa_len_name), axis=1 )	# add to master input array
@@ -167,9 +167,70 @@ print encoded_data[:10, :]
 """	Modelling """
 #-----------------------#
 
-import x
-import y
-import z
+#import x
+#import y
+#import z
+import time
+import datetime
+print 'Begin modelling...', datetime.datetime.utcfromtimestamp(time.time()).strftime('%Y-%m-%dT%H:%M:%SZ')
+
+# very naive regression approach just to get going
+# http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestRegressor.html
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.datasets import make_regression
+
+X = encoded_data[:, :-1]
+y = encoded_data[:, -1]
+
+regr = RandomForestRegressor(verbose=2)	# this takes some time...
+regr.fit(X, y)
+
+for i in range(10, -1, -1):
+	print regr.predict( X[i] )
+	print y[i]
+	print '\n'
+
+
+# need to add in
+# - stratified k-fold
+# 	http://scikit-learn.org/stable/modules/generated/sklearn.model_selection.StratifiedKFold.html
+#
+# - some kind of scoring
+#	http://scikit-learn.org/stable/modules/generated/sklearn.metrics.mean_squared_error.html
+#	http://www.blopig.com/blog/2017/07/using-random-forests-in-python-with-scikit-learn/
+
+# essentially do:
+'''
+# modelling
+seed = 7
+np.random.seed(seed)
+print 'Starting modelling...'
+kfold = StratifiedKFold(n_splits = 3, shuffle = True, random_state = seed)
+cross_val_scores = []
+model_input_dims = np.shape(X_reduced)[1]
+
+for train, test in kfold.split(X_reduced, Y):
+    
+    print 'Training indexes:'
+    print train
+    print '\n'
+    print 'Testing indexes:'
+    print test
+    print '\n'
+
+'''
+# and inside each fold iteration:
+#	- fit a new random forest model. (this takes some time just like with the nn fitting)
+#	- print off some accuracy scores using y_actual and y_pred (rmse)
+
+
+
+
+
+
+
+
+
 
 
 
