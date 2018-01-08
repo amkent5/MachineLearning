@@ -190,9 +190,59 @@ for i in range(10, -1, -1):
 	print y[i]
 	print '\n'
 
+# output:
+'''
+Begin modelling... 2018-01-08 09:50:24
+building tree 1 of 10
+[Parallel(n_jobs=1)]: Done   1 out of   1 | elapsed: 13.5min remaining:    0.0s
+building tree 2 of 10
+building tree 3 of 10
+building tree 4 of 10
+building tree 5 of 10
+building tree 6 of 10
+building tree 7 of 10
+building tree 8 of 10
+building tree 9 of 10
+building tree 10 of 10
+[Parallel(n_jobs=1)]: Done  10 out of  10 | elapsed: 148.2min finished
 
-# need to add in
-# - stratified k-fold
+[ 8.1]
+8.0
+
+[ 12.2]
+8.0
+
+[ 16.]
+19.0
+
+[ 9.9]
+6.0
+
+[ 79.4]
+64.0
+
+[ 47.1]
+59.0
+
+[ 34.3]
+44.0
+
+[ 32.1]
+35.0
+
+[ 9.5]
+10.0
+
+[ 43.]
+52.0
+
+[ 12.89333333]
+10.0
+'''
+
+
+# Need to add in
+# - stratified k-fold (do we want stratified?)
 # 	http://scikit-learn.org/stable/modules/generated/sklearn.model_selection.StratifiedKFold.html
 #
 # - some kind of scoring
