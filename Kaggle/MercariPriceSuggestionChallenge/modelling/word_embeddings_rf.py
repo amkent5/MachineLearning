@@ -23,12 +23,14 @@ and use the vector-space as additional input.
 """	Data Wrangling """
 #-----------------------#
 
+import time
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
 # load data into pandas
-datafile = '/Users/Ash/Projects/MachineLearning/Kaggle/MercariPriceSuggestionChallenge/data/train.tsv'
+#datafile = '/Users/Ash/Projects/MachineLearning/Kaggle/MercariPriceSuggestionChallenge/data/train.tsv'
+datafile = '/Users/admin/Documents/Projects/MachineLearning/Kaggle/MercariPriceSuggestionChallenge/data/train.tsv'
 df = pd.read_csv(datafile, delimiter='\t')
 
 # some stats
@@ -229,9 +231,21 @@ words = list(model.wv.vocab)
 print model['gold'], type(model['gold'])
 
 # form input array (choose maximum of 5 words in sentence and pad sentences with less)
+
+'''
+# 1st attempt
+# This is too slow as each time we do a numpy concatenate numpy has to find 
+# a new contiguous block of RAM that can fit the array on each iteration.
+# This is extremely intensive on memory and slows the execution down massively.
+
+prev_time = time.time()
 for k, sentence in d_ix_to_sentence.items():
 
-	print k, sentence
+	#print k, sentence
+	if k % 1000 == 0:
+		print k
+		print time.time() - prev_time
+		prev_time = time.time()
 
 	for i, word in enumerate(sentence):
 
@@ -249,21 +263,73 @@ for k, sentence in d_ix_to_sentence.items():
 	# reshape for vertical concatenation
 	array = array.reshape(1, 500)
 
-	print array
-	print len(array)
-	print array.shape
+	#print array
+	#print array.shape
 
 	if k == 0:
 		input_array = array
 	else:
 		input_array = np.concatenate((input_array, array), axis=0)
 
-	if k > 10:
-		print len(input_array)
-		print input_array.shape
-		break
+print len(input_array)
+print input_array.shape
+
+np.save('word_embedding_input_matrix', input_array)
 
 # now append this array to the rest of the input array (check it has the same number of rows..1.4mill)
+quit()
+'''
+
+
+# 2nd attempt
+# (use lists more than arrays)
+# (see comment: http://akuederle.com/create-numpy-array-with-for-loop)
+prev_time = time.time()
+l_encodings = []
+for k, sentence in d_ix_to_sentence.items():
+
+	#print k, sentence
+	if k % 1000 == 0:
+		print k
+		print time.time() - prev_time
+		prev_time = time.time()
+
+	for i, word in enumerate(sentence):
+
+		if i == 0:
+			l_array = model[word].tolist()
+		elif i < 5:
+			l_array2 = model[word].tolist()
+			l_array += l_array2
+
+	# normalise sentence lengths
+	if len(l_array) != 500:
+		diff = 500 - len(l_array)
+		#array = np.concatenate((array, np.zeros(diff)))
+		l_array += [0 for _ in range(diff)]
+
+	print l_array
+	print len(l_array)
+
+	l_encodings.append(l_array)
+
+print len(l_encodings)
+
+# check len of the array is the same length as encoded_data
+# if it is, then add this into the input array
+# then see if it improves the accuracy of the classifier (run both, 
+# and compare the y_pred for the 10 vals below as a first step, 
+# then do crossvalidation on rmse).
+
+quit()
+
+
+
+
+
+
+
+
 
 
 quit()
