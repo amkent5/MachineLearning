@@ -29,8 +29,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # load data into pandas
-#datafile = '/Users/Ash/Projects/MachineLearning/Kaggle/MercariPriceSuggestionChallenge/data/train.tsv'
-datafile = '/Users/admin/Documents/Projects/MachineLearning/Kaggle/MercariPriceSuggestionChallenge/data/train.tsv'
+datafile = '/Users/Ash/Projects/MachineLearning/Kaggle/MercariPriceSuggestionChallenge/data/train.tsv'
+#datafile = '/Users/admin/Documents/Projects/MachineLearning/Kaggle/MercariPriceSuggestionChallenge/data/train.tsv'
 df = pd.read_csv(datafile, delimiter='\t')
 
 # some stats
@@ -46,6 +46,8 @@ for feature in df.columns: df[feature].fillna(value="missing_val", inplace=True)
 # store name series and item_description series for later
 ser_name = df['name']
 ser_item_description = df['item_description']
+
+'''
 
 # create split category features
 l_cat1, l_cat2 = [], []
@@ -170,7 +172,7 @@ encoded_data = np.concatenate( (encoded_data, npa_price), axis=1 )
 print encoded_data.shape	# (1482535, 785)
 print encoded_data[:10, :]
 
-
+'''
 
 
 #-----------------------------------------------#
@@ -200,7 +202,6 @@ from string import punctuation
 # Word2Vec expects a list of lists where the inner list is the sentence, split
 # by word, made lowercase and with all punctuation removed
 l_vocab = []
-d_ix_to_sentence = {}
 for i, val in enumerate(ser_name.values):
 	if len(val) > 0:
 		# lower
@@ -208,9 +209,8 @@ for i, val in enumerate(ser_name.values):
 		# remove punctuation and split
 		sentence = val.translate(None, punctuation).split(' ')
 		l_vocab.append(sentence)
-		d_ix_to_sentence[i] = sentence
 	else:
-		d_ix_to_sentence[i] = 'empty'
+		l_vocab.append([''])
 
 # train neural network model
 # Word2Vec params:
@@ -228,7 +228,9 @@ words = list(model.wv.vocab)
 #print words
 
 # take a look at a vector representation for a word
-print model['gold'], type(model['gold'])
+print model['gold']
+print type(model['gold'])
+
 
 # form input array (choose maximum of 5 words in sentence and pad sentences with less)
 
@@ -280,16 +282,20 @@ np.save('word_embedding_input_matrix', input_array)
 quit()
 '''
 
-
 # 2nd attempt
 # (use lists more than arrays)
 # (see comment: http://akuederle.com/create-numpy-array-with-for-loop)
+
+#### This is now maxing out my 16Gb of memory
+### I need to use generators instead of lists:
+### https://realpython.com/blog/python/introduction-to-python-generators/
+
 prev_time = time.time()
 l_encodings = []
-for k, sentence in d_ix_to_sentence.items():
+for k, sentence in enumerate(l_vocab):
 
 	#print k, sentence
-	if k % 1000 == 0:
+	if k % 100000 == 0:
 		print k
 		print time.time() - prev_time
 		prev_time = time.time()
@@ -298,8 +304,10 @@ for k, sentence in d_ix_to_sentence.items():
 
 		if i == 0:
 			l_array = model[word].tolist()
+			#l_array = np.round(model[word].tolist(), decimals=7).tolist()
 		elif i < 5:
 			l_array2 = model[word].tolist()
+			#l_array2 = np.round(model[word].tolist(), decimals=7).tolist()
 			l_array += l_array2
 
 	# normalise sentence lengths
@@ -313,10 +321,16 @@ for k, sentence in d_ix_to_sentence.items():
 
 	l_encodings.append(l_array)
 
-print len(l_encodings)
 
 # check len of the array is the same length as encoded_data
 # if it is, then add this into the input array
+
+print len(l_encodings)
+print l_encodings[100]
+
+#df_embeddings = pd.DataFrame(l_encodings)
+#print df_embeddings.shape
+
 
 '''
 Can add in like:
