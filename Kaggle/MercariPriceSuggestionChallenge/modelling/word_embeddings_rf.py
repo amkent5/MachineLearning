@@ -317,6 +317,28 @@ print len(l_encodings)
 
 # check len of the array is the same length as encoded_data
 # if it is, then add this into the input array
+
+'''
+Can add in like:
+>>> l = [[1,2,1], [5,4,3], [1,0,0]]
+>>> for _ in l: print _
+...
+[1, 2, 1]
+[5, 4, 3]
+[1, 0, 0]
+>>> df = pd.DataFrame(l)
+>>> df
+   0  1  2
+0  1  2  1
+1  5  4  3
+2  1  0  0
+>>> df.loc[:, 2]
+0    1
+1    3
+2    0
+Name: 2, dtype: int64
+'''
+
 # then see if it improves the accuracy of the classifier (run both, 
 # and compare the y_pred for the 10 vals below as a first step, 
 # then do crossvalidation on rmse).
