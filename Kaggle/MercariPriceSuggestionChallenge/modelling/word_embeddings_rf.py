@@ -290,9 +290,22 @@ quit()
 ### I need to use generators instead of lists:
 ### https://realpython.com/blog/python/introduction-to-python-generators/
 
+# I posted in SO and someone suggested writing to a file so that nothing has to get stored
+# in memory, then reading the file into another script. I could try this:
+"""
+>>> import numpy as np
+>>> with open('ash.csv', 'a') as f:
+...     for i in range(10, 100):
+...             myarray = np.arange(i)
+...             strarray = ','.join(map(str, myarray))
+...             f.write(strarray + '\n')
+...     f.close()
+"""
+
+
 prev_time = time.time()
 l_encodings = []
-for k, sentence in enumerate(l_vocab):
+for k, sentence in enumerate(l_vocab):	# l_vocab is a list of lists
 
 	#print k, sentence
 	if k % 100000 == 0:
@@ -300,6 +313,7 @@ for k, sentence in enumerate(l_vocab):
 		print time.time() - prev_time
 		prev_time = time.time()
 
+	# form list of 5-word-embedding to append to l_encodings
 	for i, word in enumerate(sentence):
 
 		if i == 0:
@@ -313,7 +327,6 @@ for k, sentence in enumerate(l_vocab):
 	# normalise sentence lengths
 	if len(l_array) != 500:
 		diff = 500 - len(l_array)
-		#array = np.concatenate((array, np.zeros(diff)))
 		l_array += [0 for _ in range(diff)]
 
 	print l_array
