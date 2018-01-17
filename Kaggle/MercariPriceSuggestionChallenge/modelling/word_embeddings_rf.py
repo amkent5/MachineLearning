@@ -47,8 +47,6 @@ for feature in df.columns: df[feature].fillna(value="missing_val", inplace=True)
 ser_name = df['name']
 ser_item_description = df['item_description']
 
-'''
-
 # create split category features
 l_cat1, l_cat2 = [], []
 for val in df.category_name:
@@ -172,7 +170,9 @@ encoded_data = np.concatenate( (encoded_data, npa_price), axis=1 )
 print encoded_data.shape	# (1482535, 785)
 print encoded_data[:10, :]
 
-'''
+
+
+
 
 
 #-----------------------------------------------#
@@ -287,20 +287,19 @@ quit()
 # (see comment: http://akuederle.com/create-numpy-array-with-for-loop)
 
 #### This is now maxing out my 16Gb of memory
-### I need to use generators instead of lists:
-### https://realpython.com/blog/python/introduction-to-python-generators/
 
 # I posted in SO and someone suggested writing to a file so that nothing has to get stored
-# in memory, then reading the file into another script. I could try this:
-"""
->>> import numpy as np
->>> with open('ash.csv', 'a') as f:
-...     for i in range(10, 100):
-...             myarray = np.arange(i)
-...             strarray = ','.join(map(str, myarray))
-...             f.write(strarray + '\n')
-...     f.close()
-"""
+# in memory, then reading the file into another script.
+
+# See word_embeddings_write.py for this code
+# It does indeed save on memory, but generates a massive file which I wouldn't be able to
+# load into memory.
+
+# So:
+#	- keep in memory
+#	- cut down the vector representation from 100 to 50
+#	- maybe just take the last 800,000 rows of data.
+
 
 
 prev_time = time.time()
@@ -381,7 +380,7 @@ quit()
 
 
 
-quit()
+
 #-----------------------#
 """	Modelling """
 #-----------------------#
