@@ -369,6 +369,39 @@ Name: 2, dtype: int64
 # and compare the y_pred for the 10 vals below as a first step, 
 # then do crossvalidation on rmse).
 
+
+
+""" Fin code """
+'''
+prev_time = time.time()
+
+# init machine learning model
+
+def sentance_to_array(sentance):
+
+	l_array = []
+	for word in sentance:
+		l_array.extend(model[word].tolist())
+
+	if len(l_array) < 500:
+		l_array.extend([0] * (500 - len(l_array)))
+
+	return l_array
+
+
+for count, sentance in enumerate(l_vocab):
+
+	if not count % 100000:
+		print k, time.time() - prev_time
+		prev_time = time.time()
+	
+	l_array = sentance_to_array(sentance)
+
+	# machine learning model.ingest(l_array, some_score)
+'''
+
+
+
 quit()
 
 
