@@ -105,7 +105,7 @@ else:
 - pick max vector length for word embedding (100)
 - then create a new input of length 500 for each name field
 - add it into our input matrix
-- visualise context between words with PCA
+- optionally visualise context between words with PCA
 '''
 
 from gensim.models import Word2Vec
