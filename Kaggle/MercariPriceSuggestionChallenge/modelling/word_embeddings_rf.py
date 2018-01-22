@@ -63,18 +63,18 @@ ser_name = df['name']
 ser_item_description = df['item_description']
 
 # create split category features
-l_cat1, l_cat2 = [], []
-for val in df.category_name:
-	val = val.split('/')
-	if len(val) == 3:
-		l_cat1.append(val[0])
-		l_cat2.append(val[1])
-	else:
-		l_cat1.append('missing_val')
-		l_cat2.append('missing_val')
+def split_cat(text):
+	try:
+		split = text.split('/')
+		if len(split) >= 2:
+			return split
+		else:
+			return ['missing_val', 'missing_val']
+	except:
+		return ['missing_val', 'missing_val']
 
-df.loc[:, 'cat1'] = pd.Series( l_cat1, index=df.index )
-df.loc[:, 'cat2'] = pd.Series( l_cat2, index=df.index )
+df['cat1'] = df['category_name'].apply(lambda x: split_cat(x)[0])
+df['cat2'] = df['category_name'].apply(lambda x: split_cat(x)[1])
 
 # create length of name and item description features
 df['len_name'] = df['name'].apply(len)
