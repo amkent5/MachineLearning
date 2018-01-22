@@ -3,6 +3,7 @@
 *** Kaggle: Mercari price suggestion challenge ***
 
 
+
 Combine appropriate categorical and continuous features with
 gensim word2vec encoded features.
 
