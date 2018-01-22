@@ -10,7 +10,7 @@ gensim word2vec encoded features.
 Features to model:
 * item_condition	(discrete)
 * shipping	(discrete)
-* brands that have over 50 distinct representations (800 length cat. vec.)	(discrete)
+* brands that have over 75 distinct representations	(discrete)
 * category_name split by '/' [0]	(discrete)
 * category_name split by '/' [1] ([2] will give us too many inputs)	(discrete)
 * length(name)	(continuous)
@@ -18,13 +18,13 @@ Features to model:
 * vector representation of the name field	(high-dimensional vector)
 
 
-We will use the last 800,000 rows of data to build the model.
-We will use KFold cross validation to train and test the model within the context 
-of this subset, k times.
-If we are happy with the results then I could use dask to train the model on the entirety
-of the train.tsv file (1.4million rows).
-We can then use the fully trained model to create the submission file against the provided
-test.tsv file.
+Notes:
+Use the last 800,000 rows of data to build the model.
+Use KFold cross validation to train and test the model within the context of this subset, 
+k times, with different hyperparameters (note: could use GridSearchCV)
+If happy with the results then I could use dask to train the model on the entirety
+of the train.tsv file (1.4million rows) and then use the fully trained model to create 
+the submission file against the provided test.tsv file.
 
 """
 
@@ -397,8 +397,8 @@ for train_ixs, test_ixs in kfold.split(X, y):
 
 	# compile model
 	if i == 1:
-		# (note: even though this looks like it exceeds memory, it does complete)
-		rf_regr = RandomForestRegressor(verbose=2, n_estimators=20)
+		# (Note: even though this looks like it exceeds memory, it does complete)
+		rf_regr = RandomForestRegressor(verbose=2, n_estimators=10)
 	elif i == 2:
 		rf_regr = RandomForestRegressor(verbose=2, n_estimators=20)
 	else:
@@ -424,11 +424,6 @@ for train_ixs, test_ixs in kfold.split(X, y):
 	print 'rmse: ', rmse
 	cross_val_scores.append(mse)
 	cross_val_scores.append(rmse)
-
-	for i in range(100, 20):
-		print preds[i]
-	for i in range(100, 20):
-		y[test_ixs][i]
 
 	# save model to disk
 	with open('model_%i' % i, 'wb') as f: cPickle.dump(rf_regr, f)
