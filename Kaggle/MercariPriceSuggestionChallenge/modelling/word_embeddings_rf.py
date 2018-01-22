@@ -40,8 +40,8 @@ import pandas as pd
 import numpy as np
 
 # load data into pandas
-datafile = '/Users/Ash/Projects/MachineLearning/Kaggle/MercariPriceSuggestionChallenge/data/train.tsv'
-#datafile = '/Users/admin/Documents/Projects/MachineLearning/Kaggle/MercariPriceSuggestionChallenge/data/train.tsv'
+#datafile = '/Users/Ash/Projects/MachineLearning/Kaggle/MercariPriceSuggestionChallenge/data/train.tsv'
+datafile = '/Users/admin/Documents/Projects/MachineLearning/Kaggle/MercariPriceSuggestionChallenge/data/train.tsv'
 df = pd.read_csv(datafile, delimiter='\t')
 
 # due to memory constraints, limit to last 800k rows
@@ -197,8 +197,8 @@ import string
 
 # This process takes a few minutes so write our vocabulary to disk.
 # Then load into memory to train word2vec.
-vocab_file = '/Users/Ash/Projects/MachineLearning/Kaggle/MercariPriceSuggestionChallenge/data/vocab_file.csv'
-#vocab_file = '/Users/admin/Documents/Projects/MachineLearning/Kaggle/MercariPriceSuggestionChallenge/data/vocab_file.csv'
+#vocab_file = '/Users/Ash/Projects/MachineLearning/Kaggle/MercariPriceSuggestionChallenge/data/vocab_file.csv'
+vocab_file = '/Users/admin/Documents/Projects/MachineLearning/Kaggle/MercariPriceSuggestionChallenge/data/vocab_file.csv'
 if os.path.isfile(vocab_file):
 	print 'Vocabulary already available for use.'
 
@@ -368,12 +368,14 @@ encoded_data = np.concatenate( (encoded_data, npa_price), axis=1 )
 """ Random Forest Models """
 #--------------------------------------#
 
+import cPickle
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import KFold
+from sklearn.metrics import mean_squared_error
 
 seed = 7
 np.random.seed(seed)
-kfold = KFold(n_splits=2, shuffle=True, random_state=seed)
+kfold = KFold(n_splits=3, shuffle=True, random_state=seed)
 cross_val_scores = []
 
 X = encoded_data[:, :-1]
@@ -391,24 +393,49 @@ for train_ixs, test_ixs in kfold.split(X, y):
 	print '\n'
 	print 'Testing indexes:'
 	print test_ixs
-	print '\n'
-	print X[train_ixs].shape
 
 	# compile model
-	# (note: even though this looks like it exceeds memory, it does complete)
-	rf_regr = RandomForestRegressor(verbose=2, n_estimators=5)
+	if i == 1:
+		# (note: even though this looks like it exceeds memory, it does complete)
+		rf_regr = RandomForestRegressor(verbose=2, n_estimators=20)
+	elif i == 2:
+		rf_regr = RandomForestRegressor(verbose=2, n_estimators=20)
+	else:
+		rf_regr = RandomForestRegressor(verbose=2, n_estimators=40)
 	
 	# fit model
 	rf_regr.fit(X[train_ixs], y[train_ixs])
 
-	# evaluate model
+	# spot check model
 	j = 0
 	for ix in test_ixs:
 		j+= 1
-		if j > 500:
-			quit()
+		if j > 100:
+			break
 		print ix
-		print rf_regr.predict( X[ix].reshape(1, -1) ), '\t', y[ix]
+		print rf_regr.predict( X[ix].reshape(1, -1) )[0], '\t', y[ix]
+
+	# evaluate model
+	preds = rf_regr.predict( X[test_ixs] )
+	mse = mean_squared_error(y[test_ixs], preds)
+	rmse = np.sqrt(mse)
+	print 'mse: ', mse
+	print 'rmse: ', rmse
+	cross_val_scores.append(mse)
+	cross_val_scores.append(rmse)
+
+	for i in range(100, 20):
+		print preds[i]
+	for i in range(100, 20):
+		y[test_ixs][i]
+
+	# save model to disk
+	with open('model_%i' % i, 'wb') as f: cPickle.dump(rf_regr, f)
+	f.close()
+
+
+print cross_val_scores
+
 
 """
 Output sample:
