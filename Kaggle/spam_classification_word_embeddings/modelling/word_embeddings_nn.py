@@ -1,7 +1,7 @@
 ### Kaggle: Spam Classification Data set
 
 '''
-Use gloVe word embeddings within the keras' embedding layer in a neural network model to
+Use gloVe word embeddings within keras' embedding layer in a neural network model to
 classify whether spam or not.
 
 
