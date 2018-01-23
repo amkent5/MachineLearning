@@ -95,21 +95,15 @@ df = df[[
 #print df.head(10)
 #print df.shape
 
-# limit the brand feature to only brands which have more than 75
-# products in the dataset
+# limit the brand feature to only brands which have more than 75 appearances in the dataset
 ser_brands = df['brand_name'].value_counts()
 ser_brands = ser_brands[ser_brands.values>75]
 s_brands = set()
 for brand in ser_brands.index: s_brands.add(brand)
+df['brand_repr'] = df['brand_name'].apply(lambda x: x if x in s_brands else 'brand_replaced')
 
-# now check the brands in df, if the brand is in s_brands
-# then keep it intact, otherwise, replace it with 'brand_replaced'
-ser_brands = df['brand_name']
-ser_bool_check = ser_brands.isin(s_brands)
-df.loc[:, 'brand_check_repr'] = ser_bool_check
-
-# use boolean column to create brand_repr column
-df['brand_repr'] = np.where(df['brand_check_repr'] == False, 'brand_replaced', df['brand_name'])
+print df['brand_name'].nunique()	# 4016
+print df['brand_repr'].nunique()	# 459
 
 # tidy df up
 df = df[[
@@ -124,6 +118,7 @@ df = df[[
 	'price'
 ]]
 print df.head(20)
+
 
 
 
