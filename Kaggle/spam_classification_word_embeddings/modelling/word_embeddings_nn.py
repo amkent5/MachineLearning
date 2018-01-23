@@ -12,7 +12,14 @@ Word embeddings perform very well.
 We will use this model as a benchmark for semi-supervised learning experiments.
 
 
+To Check:
+
+This classifier does very well on 80% labelled data (97%)
+Check that it does worse on 20% labelled data (otherwise it's not a good candidate for SSL experiments)
+
+
 Resources:
+
 http://www.orbifold.net/default/2017/01/10/embedding-and-tokenizer-in-keras/
 
 '''
