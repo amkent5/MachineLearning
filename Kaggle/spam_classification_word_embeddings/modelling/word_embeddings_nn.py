@@ -1,27 +1,36 @@
 ### Kaggle: Spam Classification Data set
 
 '''
+Approach:
 Use gloVe word embeddings within keras' embedding layer in a neural network model to
 classify whether spam or not.
 
-
 Motivation:
-
-This is SMS data, so arguably it is its own vocabulary (like industry jargon would be)
+This is SMS data, so arguably it is its own vocabulary (like industry jargon would be).
 Word embeddings perform very well.
 We will use this model as a benchmark for semi-supervised learning experiments.
 
-
 To Check:
-
 This classifier does very well on 80% labelled data (97%)
-Check that it does worse on 20% labelled data (otherwise it's not a good candidate
-for SSL experiments)
-
+Check that it does worse on 20% labelled data (otherwise it may not be a good candidate
+for SSL experiments...)
 
 Resources:
-
 http://www.orbifold.net/default/2017/01/10/embedding-and-tokenizer-in-keras/
+https://www.clsp.jhu.edu/~sbergsma/Pubs/bergsmaPhDThesis.pdf
+
+SSL NLP Idea:
+5,500 samples of SMS messages. If we de-label 90% of them then we have a semi-supervised learning problem.
+The idea is to train the below model on 10% of the labelled data and use that accuracy as a benchmark to
+improve by implementing the following semi-supervised methods:
+
+1. Use "Self-learning" (page 27 of Bergsma's PhD thesis)
+Use the classifier that has been built on 10% labelled data to predict a large number of unlabelled feature
+vectors (say 50% of the unlabelled data). Then re-train the system on both the original 10% labelled examples
+and the 'automatically-labelled' examples. and then evaluate the classifier on the same test data set (i.e.
+the original 80% unlabelled data). Is it now more accurate?
+
+2. 
 
 '''
 
