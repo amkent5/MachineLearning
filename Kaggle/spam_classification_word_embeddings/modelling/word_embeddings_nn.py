@@ -30,7 +30,12 @@ vectors (say 50% of the unlabelled data). Then re-train the system on both the o
 and the 'automatically-labelled' examples. and then evaluate the classifier on the same test data set (i.e.
 the original 80% unlabelled data). Is it now more accurate?
 
-2. 
+2. Use 'Bootstrapping'
+Self-learning breaks down as the errors in training are compounded on the re-train. Bootstrapping aims to
+avoid this by exploiting different views of the problem.
+
+3. Create new features from the unlabelled data to 'boost' our 10%-classifier
+
 
 '''
 
