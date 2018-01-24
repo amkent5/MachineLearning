@@ -35,7 +35,10 @@ Self-learning breaks down as the errors in training are compounded on the re-tra
 avoid this by exploiting different views of the problem.
 
 3. Create new features from the unlabelled data to 'boost' our 10%-classifier
-
+Adapt the 'Features for the Output of Auxiliary Classifiers' section of Bergsma's PhD thesis. Essentially
+run a model on all the data that outpus the prob of the word 'Won' appearing in each document. Then add
+the prob as a feature. Do the same for words like 'Congratulations' etc.
+Could also use LDA on 100% of the data, and then pump the identified topics as new features into the model.
 
 '''
 
