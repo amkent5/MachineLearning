@@ -1,14 +1,24 @@
-# apply this:
-# https://stackoverflow.com/questions/44909134/how-to-avoid-overfitting-on-a-simple-feed-forward-network
-
 ### Keras word embeddings classifier for tweet sentiment
 ### Benchmark classifier for SSL experiments
-"""
-The two smileys :) and :( have been removed from the tweets in the data set.
-The task is to classify where a :) has been removed (class 1), and where a :(
-has been removed (class -1)
 
-"""
+
+# The two smileys :) and :( have been removed from the tweets in the data set.
+# The benchmark task is to classify where a :) has been removed (class 1), and where a :( has been removed (class 0)
+
+
+# Different test_size params in train_test_split:
+# test_size = 0.2 		num_training_rows: 157,337		Accuracy: 75.950172
+# test_size = 0.7 		num_training_rows: 59,001		Accuracy: 74.395479
+# test_size = 0.9 		num_training_rows: 19,667 		Accuracy: 71.615491
+# test_size = 0.99 		num_training_rows: 1,966		Accuracy: 66.239869
+# test_size = 0.995 	num_training_rows: 983			Accuracy: 64.838596
+
+
+# We will assume a human has laboriously and begrudgingly labelled 983 rows of the data set.
+# The benchmark classifier achieves an accuracy of 64.8% when applied to the other 195,689 unlabelled
+# rows. Can we use ssl techniques to up the accuracy without using more labelled rows...
+
+
 
 
 
@@ -17,7 +27,6 @@ import pandas as pd
 import numpy as np
 from sklearn.utils import shuffle
 
-# there are 'full' datasets in the same location
 neg_datafile = '/Users/admin/Documents/Projects/MachineLearning/AI/Semi-supervised Learning/twitter_sentiment_classification/data/train_neg.txt'
 pos_datafile = '/Users/admin/Documents/Projects/MachineLearning/AI/Semi-supervised Learning/twitter_sentiment_classification/data/train_pos.txt'
 
@@ -140,7 +149,7 @@ model.add(Flatten())
 model.add(Dense(256, init='uniform', activation='relu'))
 
 # adding the following dropout layer reduces the training accuracy signficiantly, but
-# increases the validation accuracy by 1.5%
+# increases the validation accuracy by 1.5% (hence is limiting overfitting)
 model.add(Dropout(0.5, name='dropout_1'))
 
 model.add(Dense(1, activation='sigmoid'))
@@ -157,16 +166,15 @@ print model.summary()
 ### Fit, train and evaluate the network
 from sklearn.model_selection import train_test_split
 
-X_train, X_test, y_train, y_test = train_test_split(X, labels, test_size=0.2, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X, labels, test_size=0.995, random_state=42)
+print X_train.shape, X_test.shape
 
 # fit model
 model.fit(X_train, y_train, epochs=10)
 
 # evaluate model
 loss, accuracy = model.evaluate(X_test, y_test, verbose=0)
-print 'Accuracy: %f' % (accuracy*100)	# Accuracy: 75.495106
-
-
+print 'Accuracy: %f' % (accuracy*100)	
 
 
 
