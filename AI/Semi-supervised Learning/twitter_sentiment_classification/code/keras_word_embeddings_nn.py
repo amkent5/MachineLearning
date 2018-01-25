@@ -1,3 +1,6 @@
+# apply this:
+# https://stackoverflow.com/questions/44909134/how-to-avoid-overfitting-on-a-simple-feed-forward-network
+
 ### Keras word embeddings classifier for tweet sentiment
 ### Benchmark classifier for SSL experiments
 """
@@ -40,7 +43,7 @@ num_pos = df['target'].value_counts()[1]	# 49.7% representation
 fig = plt.figure()
 ax = fig.add_subplot(111)
 ax.bar([1,2], [num_negs, num_pos])
-plt.show()
+#plt.show()
 
 
 
@@ -124,7 +127,7 @@ print X.shape	# (196672, 20)
 
 ### Build and compile the network
 from keras.models import Sequential
-from keras.layers import Dense, Flatten
+from keras.layers import Dense, Flatten, Dropout
 
 # build the model
 model = Sequential()
@@ -135,6 +138,10 @@ model.add(Flatten())
 # loss dramatically, but there must be significant overfitting as training accuracy
 # ends up at 95%, try and reduce overfitting...
 model.add(Dense(256, init='uniform', activation='relu'))
+
+# adding the following dropout layer reduces the training accuracy signficiantly, but
+# increases the validation accuracy by 1.5%
+model.add(Dropout(0.5, name='dropout_1'))
 
 model.add(Dense(1, activation='sigmoid'))
 model.layers[0].trainable=False
@@ -157,7 +164,7 @@ model.fit(X_train, y_train, epochs=10)
 
 # evaluate model
 loss, accuracy = model.evaluate(X_test, y_test, verbose=0)
-print 'Accuracy: %f' % (accuracy*100)	# Accuracy: 74.241769
+print 'Accuracy: %f' % (accuracy*100)	# Accuracy: 75.495106
 
 
 
