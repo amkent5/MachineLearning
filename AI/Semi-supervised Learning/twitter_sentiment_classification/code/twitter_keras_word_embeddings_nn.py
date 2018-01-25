@@ -179,3 +179,18 @@ print 'Accuracy: %f' % (accuracy*100)
 
 
 
+""" To do (self-learning experiment) """
+'''
+a) wrap the model building in a function as we'll need to create a duplicate
+b) store the ix's that were used in the benchmark models 10% training 
+c) you don't need to save the benchmark model to disk...
+d) use the benchmark model to label another 50% of the ix's in X_test and create a new df/ labels array
+e) create a new X_train, y_train with this info (no need to tests)
+f) use function to create model2 and train it on the new X_train and y_train (don't need to save this either as can just do model2.predict in the same script)
+g) then use model2 to predict the IX's not used in a) and see how accurate it is
+
+
+
+'''
+
+
