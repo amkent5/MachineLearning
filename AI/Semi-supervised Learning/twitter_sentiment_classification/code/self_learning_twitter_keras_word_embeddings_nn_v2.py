@@ -185,24 +185,30 @@ print 'Accuracy: %f' % (accuracy*100)
 
 
 ### Use the base_model to pseudo-label an additional 25% of the 'unlabelled' data (i.e. 25% of base_X_test)
+# Try to build up to 25% where we only include predictions that the model is sure about (i.e. p<10% & p>90%)
 auto_X_train = base_X_train
 auto_y_train = base_y_train
 
-for i in range(len(base_X_test)/ 4):
+proportion = len(base_X_test)/ 4	# 25% of unlabelled
+for i in range(len(base_X_test)):
 
 	# append vectors that we use in the 25% of base_X_test onto auto_X_train
 	# and for the associated predictions we create, append (the rounded version) onto auto_y_train
 	# We will then have training data that includes both the original 10% and 25% of pseudo-labelled data
 
 	vector = base_X_test[i].reshape(1, 20)
-	pred = round( base_model.predict(vector)[0][0] )
+	pred = base_model.predict(vector)[0][0]
 
-	auto_X_train = np.concatenate((auto_X_train, vector), axis=0)
-	auto_y_train = np.concatenate((auto_y_train, [pred]))
+	if pred < 0.05 or pred > 0.95:
+		auto_X_train = np.concatenate((auto_X_train, vector), axis=0)
+		auto_y_train = np.concatenate((auto_y_train, [round(pred)]))
+
+		if auto_y_train.shape[0] > proportion:
+			break
 
 print len(base_X_train)							# 983
 print len(base_X_test)/ 4 						# 48922
-print auto_X_train.shape, auto_y_train.shape	# (49905, 20) (49905,)
+print auto_X_train.shape, auto_y_train.shape	# (48923, 20) (48923,)
 
 
 
