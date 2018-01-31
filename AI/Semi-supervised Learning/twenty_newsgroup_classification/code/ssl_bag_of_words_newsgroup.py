@@ -229,3 +229,24 @@ predicted = text_clf.predict(test_tfidf)
 print np.mean(predicted == y_test) # 0.9281
 
 
+
+### Manual test
+docs_new = [
+    'Does God really exist?',
+    'Who would win in a fight, Darth Sidious or the Pope?',
+    'Deep Learning training should be done on the GPU',
+    'Out-of-core learning is where we manage training data outside of system memory constraints']
+X_new_counts = count_vect.transform(docs_new)
+X_new_tfidf = tfidf_transformer.transform(X_new_counts)
+
+predicted = text_clf.predict(X_new_tfidf)
+
+for doc, category in zip(docs_new, predicted):
+    print('%r => %s' % (doc, d_twenty_train['target_names'][category]))
+
+"""
+'Does God really exist?' => alt.atheism
+'Who would win in a fight, Darth Sidious or the Pope?' => soc.religion.christian
+'Deep Learning training should be done on the GPU' => comp.graphics
+'Out-of-core learning is where we manage training data outside of system memory constraints' => comp.graphics
+"""
