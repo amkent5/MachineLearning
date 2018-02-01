@@ -13,6 +13,7 @@ Machine learning is a branch of artificial intelligence whereby machines learn f
 
 ## Resources
 - [Kaggle - "The Home of Data Science & Machine Learning"](https://www.kaggle.com/)
+- [Awesome blog](https://shuaiw.github.io/)
 - [C Olah Blog - inspired blog posts](http://colah.github.io/)
 - [Open Data Science (ODS) Blog](https://opendatascience.com/blog/)
 - [opencv-python-tutorials](http://opencv-python-tutroals.readthedocs.org/en/latest/py_tutorials/py_ml/py_table_of_contents_ml/py_table_of_contents_ml.html)
