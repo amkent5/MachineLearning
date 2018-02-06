@@ -171,6 +171,7 @@ y = y[:1000]
 print X.shape
 print y.shape
 
+
 # 2d
 tsne = TSNE(n_components=2, verbose=1, perplexity=40)
 tsne_results = tsne.fit_transform(X)
@@ -187,7 +188,38 @@ plt.title('t-SNE twitt')
 plt.show()
 
 
-# yeah, there is no clustering of the word vectors in either PCA or t-SNE...
-# see comment on this blog:
-# https://shuaiw.github.io/2016/12/22/topic-modeling-and-tsne-visualzation.html
+# Spoke to John and the reason I am not seeing clustering is because it doesn't make
+# sense to use the Euclidean distance metric with word embeddings. It does make sense to
+# use Euclidean distance metric for bag of words (count-frequencies), but try other metrics
+# for this word embeddings example:
+
+from sklearn.neighbors import DistanceMetric
+
+#dist = DistanceMetric.get_metric('chebyshev')
+
+tsne2 = TSNE(n_components=2, verbose=1, perplexity=20, metric='cosine')
+tsne_results = tsne2.fit_transform(X)
+X_tsne = tsne_results[:, 0]
+Y_tsne = tsne_results[:, 1]
+
+plt.scatter(X_tsne, Y_tsne, c=y, cmap=mpl.colors.ListedColormap(colors), s=22**2)
+plt.title('t-SNE hamming')
+plt.show()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
