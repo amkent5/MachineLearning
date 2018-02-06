@@ -57,17 +57,30 @@ print tf 	# we now have the term frequency matrix (i.e. the bag of words)
 
 
 ### Build LDA model
+import pickle
+import os
 from sklearn.decomposition import LatentDirichletAllocation
 
-n_topics = 20 # number of topics
-max_iter = 50 # number of iterations
+# save LDA model to disk to speed up experimentation
+filename = 'topic_modelling_and_tsne_vis__LDA_model.sav'
+if not os.path.isfile(filename):
 
-lda_model = LatentDirichletAllocation(n_topics=n_topics, max_iter=max_iter, n_jobs=-1, verbose=10)
-lda_model_fit = lda_model.fit(tf)
+	n_topics = 20 # number of topics
+	max_iter = 50 # number of iterations
+
+	lda_model = LatentDirichletAllocation(n_topics=n_topics, max_iter=max_iter, n_jobs=-1, verbose=10)
+	lda_model_fit = lda_model.fit(tf)
+
+	pickle.dump(lda_model_fit, open(filename, 'wb'))
+
+else:
+
+	lda_model_fit = pickle.load(open(filename, 'rb'))
+
+
 X_topics = lda_model_fit.transform(tf)
-
-#X_topics = lda_model.fit_transform(tf)	# takes ~5mins
 print X_topics
+
 
 
 
@@ -82,7 +95,7 @@ display_topics(lda_model_fit, tf_feature_names, 10)
 
 
 ### Visualise our topic distribution with t-SNE
-# We have a learned LDA model. But we cannot visually inspect how good our model is
+# We have a learned LDA model. But we cannot visually inspect how good our model is.
 # t-SNE comes to the rescue
 from sklearn.manifold import TSNE
 
@@ -90,16 +103,27 @@ tsne_model = TSNE(n_components=2, verbose=1, random_state=0, angle=.99, init='pc
 
 # 20-D -> 2-D
 tsne_lda = tsne_model.fit_transform(X_topics)
+x_tsne = tsne_lda[:, 0]
+y_tsne = tsne_lda[:, 1]
 
 # create 20 colours
 from random import randint
 colours = []
 for i in range(20): colours.append('#%06X' % randint(0, 0xFFFFFF))
 
-# NOTE:
-# for each of the rows in X_topics, there are 20 probabilities representing each of the 20 classes.
-# for the plotting, for each row, take the maximum prob as the x coord, and its index as the y coord.
+# for each of the rows in X_topics, there are 20 probabilities representing each of the 20 classes
+# form the topic grouping by taking the index of the max probability for each row
+_lda_keys = []
+for i in range(X_topics.shape[0]): _lda_keys.append( X_topics[i].argmax() )
 
+# plot
+import matplotlib as mpl
+mpl.use('TkAgg')
+import matplotlib.pyplot as plt
+
+plt.scatter(X_tsne, Y_tsne, c=_lda_keys, cmap=mpl.colors.ListedColormap(colours), s=22**2)
+plt.title('20-NG LDA t-SNE')
+plt.show()
 
 
 
