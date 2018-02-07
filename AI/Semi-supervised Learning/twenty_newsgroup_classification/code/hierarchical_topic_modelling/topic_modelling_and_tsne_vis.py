@@ -25,8 +25,9 @@ print df.shape
 ### Quick clean of vocab
 import string
 
-# remove apostrophes, non-ascii characters and make lowercase
+# remove apostrophes, numbers, non-ascii characters and make lowercase
 df['doc'] = df['doc'].apply( lambda x: x.replace("'", "") )
+df['doc'] =df['doc'].apply( lambda x: ''.join( [char for char in x if char not in ('0','1','2','3','4','5','6','7','8','9')] ) )
 df['doc'] = df['doc'].apply( lambda x: ''.join( [char for char in x if char in string.printable] ) )
 df['doc'] = df['doc'].apply( lambda x: x.lower() )
 
@@ -62,11 +63,11 @@ import os
 from sklearn.decomposition import LatentDirichletAllocation
 
 # save LDA model to disk to speed up experimentation
-filename = 'topic_modelling_and_tsne_vis__LDA_model.sav'
+filename = 'topic_modelling_and_tsne_vis__LDA_model_numbers_removed.sav'
 if not os.path.isfile(filename):
 
 	n_topics = 20 # number of topics
-	max_iter = 50 # number of iterations
+	max_iter = 100 # number of iterations
 
 	lda_model = LatentDirichletAllocation(n_topics=n_topics, max_iter=max_iter, n_jobs=-1, verbose=10)
 	lda_model_fit = lda_model.fit(tf)
@@ -80,7 +81,8 @@ else:
 
 X_topics = lda_model_fit.transform(tf)
 print X_topics
-
+print X_topics.shape
+print 'LDA model loaded from disk'
 
 
 
@@ -88,6 +90,7 @@ print X_topics
 def display_topics(model, feature_names, no_top_words):
 	for topic_idx, topic in enumerate(model.components_):
 		print "Topic %d:" % (topic_idx)
+
 		print " ".join([feature_names[i] for i in topic.argsort()[:-no_top_words - 1:-1]])
 
 display_topics(lda_model_fit, tf_feature_names, 10)
@@ -99,36 +102,55 @@ display_topics(lda_model_fit, tf_feature_names, 10)
 # t-SNE comes to the rescue
 from sklearn.manifold import TSNE
 
+# for each of the rows in X_topics, there are 20 probabilities representing each of the 20 classes
+# form the topic grouping by taking the index of the max probability for each row
+_lda_keys = []
+for i in range(X_topics.shape[0]):
+	_lda_keys.append( X_topics[i].argmax() )
+
+# we can make our visualisation better by only including confident LDA assigments
+_lda_keys_confident = []
+X_ixs_confident = []
+for i in range(X_topics.shape[0]):
+	if X_topics[i].max() > 0.5:
+		_lda_keys_confident.append( X_topics[i].argmax() )
+		X_ixs_confident.append(i)
+
+print X_topics.shape	# (18846, 20)
+X_topics = X_topics[X_ixs_confident]
+print X_topics.shape	# (4260, 20)
+
 tsne_model = TSNE(n_components=2, verbose=1, random_state=0, angle=.99, init='pca')
 
 # 20-D -> 2-D
 tsne_lda = tsne_model.fit_transform(X_topics)
 x_tsne = tsne_lda[:, 0]
 y_tsne = tsne_lda[:, 1]
+print x_tsne, y_tsne
 
 # create 20 colours
 from random import randint
 colours = []
 for i in range(20): colours.append('#%06X' % randint(0, 0xFFFFFF))
 
-# for each of the rows in X_topics, there are 20 probabilities representing each of the 20 classes
-# form the topic grouping by taking the index of the max probability for each row
-_lda_keys = []
-for i in range(X_topics.shape[0]): _lda_keys.append( X_topics[i].argmax() )
+
 
 # plot
 import matplotlib as mpl
 mpl.use('TkAgg')
 import matplotlib.pyplot as plt
 
-plt.scatter(X_tsne, Y_tsne, c=_lda_keys, cmap=mpl.colors.ListedColormap(colours), s=22**2)
-plt.title('20-NG LDA t-SNE')
+plt.scatter(x_tsne, y_tsne, c=_lda_keys_confident, cmap=mpl.colors.ListedColormap(colours), s=22**2)
+plt.title('20-NG LDA t-SNE (LDA confidence pruned)')
 plt.show()
 
 
 
 
 ### Visualise our topic distriubtion with pyLDAvis
+
+
+
 
 
 
