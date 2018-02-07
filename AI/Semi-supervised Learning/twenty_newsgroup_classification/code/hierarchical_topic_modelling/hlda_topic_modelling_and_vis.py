@@ -1,6 +1,4 @@
-### Worked quickly with n_samples = 50 and 1000 docs...
-
-# Implementation of hlda with respect to the 20-NG dataset
+### Implementation of hlda with respect to the 20-NG dataset
 
 # Resources:
 # https://github.com/joewandy/hlda/blob/master/notebooks/bbc_test.ipynb
