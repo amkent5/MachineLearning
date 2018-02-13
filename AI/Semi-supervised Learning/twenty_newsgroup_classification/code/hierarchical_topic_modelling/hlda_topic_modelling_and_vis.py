@@ -23,7 +23,8 @@ df = pd.DataFrame(d_twenty_all['data'], columns=['doc'])
 df['target'] = d_twenty_all['target']
 print df.shape
 
-
+print df['doc'][0]
+quit()
 
 ### Quick clean of vocab
 import string
@@ -145,6 +146,9 @@ for doc in corpus:
 print corpus[0][0:10]
 print corpus_of_ixs[0][0:10]
 
+"""
+Training done, so just load model from disk...
+
 # create hierarchical LDA object and run the sampler
 n_samples = 50       	# no of iterations for the sampler
 alpha = 10.0          	# smoothing over level distributions
@@ -158,7 +162,7 @@ with_weights = True		# whether to print the words with the weights
 hlda = HierarchicalLDA(corpus_of_ixs, vocab, alpha=alpha, gamma=gamma, eta=eta, num_levels=num_levels)
 hlda.estimate(n_samples, display_topics=display_topics, n_words=n_words, with_weights=with_weights)
 
-
+"""
 
 ### Store trained hLDA model for reuse
 import cPickle
@@ -168,12 +172,34 @@ def save_zipped_pickle(obj, filename, protocol=-1):
     with gzip.open(filename, 'wb') as f:
         cPickle.dump(obj, f, protocol)
         
+#save_zipped_pickle(hlda, 'hLDA_model.p')
+
 def load_zipped_pickle(filename):
     with gzip.open(filename, 'rb') as f:
         loaded_object = cPickle.load(f)
         return loaded_object
 
-save_zipped_pickle(hlda, 'hLDA_model.p')
+# load saved model
+hlda = load_zipped_pickle('hLDA_model.p')
+
+# analyse first document
+colour_map = {
+    0: 'blue',
+    1: 'red',
+    2: 'green'
+}
+doc = corpus[0]
+output = ''
+for n in range(len(doc)):
+	w = doc[n]
+	l = hlda.levels[0][n]
+	colour = colour_map[l]
+	output += '<span style="color:%s">%s</span> ' % (colour, w)
+
+print output
+
+
+
 
 
 
