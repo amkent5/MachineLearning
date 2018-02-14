@@ -12,9 +12,10 @@ PDFS:
         https://www.pwc.com/gx/en/energy-utilities-mining/pdf/eumcommoditiestradingriskmanagementglossary.pdf
 """
 
+import time
+import urllib
 from collections import defaultdict
 from bs4 import BeautifulSoup
-import urllib
 
 d_data = defaultdict()
 
@@ -82,26 +83,47 @@ for i in range(len(h3_ixs)):
 r3 = urllib.urlopen('http://www.glossary.oilfield.slb.com/en/Disciplines/All-Disciplines.aspx').read()
 soup = BeautifulSoup(r3)
 
-# on this occasion I want all of the a tags after the 42nd one
+# on inspection I want all of the a tags after the 43rd one
 data = soup.find_all('a')[43:]
 
 # iterate through a tags storing the text as the key, then open
-# the inner webpage and extract the text as the value
+# the inner webpage and extract the text as the value / description
+i = 0
 d_terms = defaultdict()
-for atag in data:
-	
-	key = atag.text
+restart_time = True
+try:
+	for atag in data:
+		
+		key = atag.text.strip()
 
-	new_url = 'http://www.glossary.oilfield.slb.com/' + atag.get("href")
-	read_new_url = urllib.urlopen(new_url).read()
-	soup = BeautifulSoup(read_new_url)
+		new_url = 'http://www.glossary.oilfield.slb.com/' + atag.get("href")
+		read_new_url = urllib.urlopen(new_url).read()
+		soup = BeautifulSoup(read_new_url)
 
-	inner_data = soup.find_all("div", class_ = "definition-text")
-	#print inner_data
-	#print inner_data[0].text
-	#print '\n'
+		inner_data = soup.find_all("div", class_ = "definition-text")
+		#print inner_data
+		#print inner_data[0].text
+		#print '\n'
 
-	d_terms[key] = inner_data[0].text
+		d_terms[key] = inner_data[0].text.strip()
+
+		i += 1
+		if restart_time:
+			t0 = time.time()
+			restart_time = False		
+		
+		if not i % 10:
+			print 'Processed %i webpages' % i
+			print 'Time taken: ', time.time() - t0
+			restart_time = True
+
+except KeyboardInterrupt:
+	print 'Interrupted'
+	for k, v in d_terms.items():
+		print k
+		print v
+		print '\n'
+	print len(d_terms)
 
 for k, v in d_terms.items():
 	print k
