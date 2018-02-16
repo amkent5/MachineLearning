@@ -170,8 +170,70 @@ mud-aging cell
 
 
 
+### Agglomerative clustering of resultant first-order tensor space
+
+# create distance matrix
+from sklearn.metrics.pairwise import cosine_similarity
+dist = cosine_similarity(model.docvecs)	# note previously I have had dist = 1 - cs...
 
 
+print 'Zero''th doc vector:', '\n', model.docvecs[0], '\n'*3
+print 'Zero''th distance vector:', '\n',  dist[0], '\n'*3
+print 'N''th doc vector:', '\n', model.docvecs[-1], '\n'*3
+print 'N''th distance vector:', '\n', dist[-1], '\n'*3
+
+print len(model.docvecs)
+print len(dist)
+
+# although the number of instance in model.docvecs and dist is the same (length 400), 
+# the length of each element is different. The length of each element of model.docvecs 
+# is 100 (for each dimension), whereas the length for each element in dist is of length 
+# 400. This is because each element represents the cosine similarity between the instance
+# and each of the other 400 instances (http://blog.christianperone.com/2013/09/machine-learning-cosine-similarity-for-vector-space-models-part-iii/).
+# Each element of dist, is an array representing the Cosine Similarity between the element (document) with all 
+# other elements (documents) in the set
+
+# Notice that that is why the first element of the zero'th dist vector is 1 (as this represents the cosine-similarity
+# between itself), and the last element of the last (n'th) dist vector is 1 (as this represents the cosine-similarity
+# between itself).
+
+print len(model.docvecs[0])
+print len(dist[0])
+
+
+
+### Run clustering algorithm to understand hidden structure within the keywords / descriptions
+import matplotlib.pyplot as plt
+from scipy.cluster.hierarchy import ward, dendrogram
+
+# define the linkage_matrix using ward clustering pre-computed distances
+linkage_matrix = ward(dist)
+
+fig, ax = plt.subplots(figsize=(15, 20)) # set size
+ax = dendrogram(linkage_matrix, orientation="right", labels=keywords)
+
+plt.tick_params(\
+    axis= 'x',			# changes apply to the x-axis
+    which='both',		# both major and minor ticks are affected
+    bottom='off',		# ticks along the bottom edge are off
+    top='off',			# ticks along the top edge are off
+    labelbottom='off'
+    )
+
+plt.tight_layout() # show plot with tight layout
+plt.show()
+
+
+
+### Agglomerative clustering looks good, let's use t-SNE to cluster the doc vectors too
+from sklearn.manifold import TSNE
+
+# as per this SO article (https://stackoverflow.com/questions/36545434/cosine-similarity-tsne-in-sklearn-manifold)
+# we need to change our distance metric slightly (https://en.wikipedia.org/wiki/Cosine_similarity):
+dist_metric = 1.0 - dist
+
+model = manifold.TSNE(metric="precomputed")
+Y = model.fit_transform(A) 
 
 
 
