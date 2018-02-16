@@ -129,12 +129,15 @@ def ssl_data_maker(df_train, df_test, num_training_instances, fill_test_data=Fal
 
 ssl_data_maker(df_train, df_test, 5, True)
 
+print '\n'*3
+print X_train
+
 print X_train.shape
 print y_train.shape
 print X_test.shape
 print y_test.shape
 
-
+quit()
 
 ### Use bag-of-words to model this problem
 """
