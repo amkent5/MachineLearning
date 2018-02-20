@@ -1,3 +1,5 @@
+### agglomerative_clustering.py with scikit-learn pipeline
+
 """
 Possible pipeline steps:
 	- the tokenize_and_stem function
@@ -45,12 +47,7 @@ from true north-the north, east, south and west directions have azimuths of 0, 9
 
 
 ### Process text
-import numpy as np
 import random
-import re
-import nltk
-from nltk.stem.snowball import SnowballStemmer
-from sklearn.feature_extraction.text import TfidfVectorizer
 
 # randomly sample 400 elements of the data dictionary
 print len(d_data)	# 4931
@@ -63,56 +60,145 @@ for i in range(len(d_data)):
 	keywords.append( d_data.keys()[i] )
 	descriptions.append( d_data.values()[i] )
 
-# define a tokenizer and stemmer
-stopwords = nltk.corpus.stopwords.words('english')
-stemmer = SnowballStemmer("english")
-def tokenize_and_stem(text):
-    # first tokenize by sentence, then by word to ensure that punctuation is caught as it's own token
-    tokens = [word for sent in nltk.sent_tokenize(text) for word in nltk.word_tokenize(sent)]
-    filtered_tokens = []
-    # filter out any tokens not containing letters (e.g., numeric tokens, raw punctuation)
-    for token in tokens:
-        if re.search('[a-zA-Z]', token):
-            filtered_tokens.append(token)
-    stems = [stemmer.stem(t) for t in filtered_tokens]
-    return stems
 
-# perform stop word removal, ngram (bi and tri) modelling, tokenisation and
-# tf-idf transformation with TfidVectorizer
+
+### Create machine learning pipelearn
+from sklearn.pipeline import Pipeline
+from sklearn.base import BaseEstimator, TransformerMixin
+
+# pipeline imports
+import re
+import nltk
+from nltk.stem.snowball import SnowballStemmer
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+
+
+# define custom transform to sanity check pipeline inputs and outputs
+class PipelineDebugger(TransformerMixin):
+
+	def __init__(self, transformer):
+		self.transformer = transformer
+
+	def fit(self, X, y=None):
+		self.transformer.fit(X, y)
+		return self
+
+	def transform(self, X):
+		print '='*30, self.transformer.__class__.__name__, '='*30
+
+		rand_ix = random.randint(0, len(X))
+		print '*'*5, 'Before', '*'*5
+		print len(X)
+		print type(X)
+		print X[rand_ix]
+		print len(X[rand_ix])
+		print type(X[rand_ix]), '\n'
+
+		X = self.transformer.transform(X)
+		print '*'*5, 'After', '*'*5
+		print len(X)
+		print type(X)
+		print X[rand_ix]
+		print len(X[rand_ix])
+		print type(X[rand_ix]), '\n'*2
+
+		return X
+
+# define custom transformer to apply NLP cleaning of text
+class nlp_doc_clean(BaseEstimator, TransformerMixin):
+	"""
+	Input:	a list of document strings
+	Output: a list of cleaned document strings
+
+	"""
+	def __init__(self):
+		self.stopwords = nltk.corpus.stopwords.words('english')
+		self.stemmer = SnowballStemmer('english')
+
+	def fit(self, X, y=None):
+		return self
+
+	def doc_clean(self, doc):
+
+		# create list of tokens from the document (a token being a individual component of the vocabulary
+		# i.e. a single word, or single punctuation)
+		tokens = [word for sent in nltk.sent_tokenize(doc) for word in nltk.word_tokenize(sent)]
+
+		# make all words lower case
+		lowers = [ token.lower() for token in tokens ]
+
+		# remove stop words
+		stopped = [ lower for lower in lowers if lower not in self.stopwords ]
+
+		# filter out any tokens not containing letters (numeric tokens, raw punctuation etc.)
+		filtered_tokens = []
+		for token in stopped:
+			if re.search('[a-zA-Z]', token):
+				filtered_tokens.append(token)
+
+		# reduce tokens to base / stemmed form
+		stems = [ self.stemmer.stem(token) for token in filtered_tokens ]
+
+		# then create sentence string as input for the tf-idf vectorizer
+		return ' '.join( stems )
+
+	def transform(self, jargon_descs):
+		return [ self.doc_clean(desc) for desc in jargon_descs ]
+
+
+
+
+
+
+
+
+### Build pipeline
+
 tfidf_vectorizer = TfidfVectorizer(
 	min_df=0.01,	# ignore terms that appear in less than 1% of the documents
 	max_df = 0.8,	# ignore terms that appear in more than 80% of the documents
 	stop_words='english',
-	use_idf=True, 
-	tokenizer=tokenize_and_stem, 
+	use_idf=True,
 	ngram_range=(1,3)	# model unigrams, bigrams, and trigrams
 	)
 
-tfidf_matrix = tfidf_vectorizer.fit_transform(descriptions)
+pipeline = Pipeline([
+		('nlp_clean_docs', PipelineDebugger( nlp_doc_clean() )),
+		('tf_vectorizer_and_idf', tfidf_vectorizer)
+#		('create_cosine_dist_matrix', PipelineDebugger(1 - cosine_similarity())),
+#		('create_ward_linkage_matrix', PipelineDebugger(ward()))
+	])
 
-# inspect
-print type(tfidf_matrix)
-print tfidf_matrix.shape
+
+
+### Use Pipeline
+# we can access the methods built into the last function in our pipeline
+# we want the fit_transform method of scikit-learns TfidfVectorizer class
+tfidf_matrix = pipeline.fit_transform(descriptions)
 print tfidf_matrix.toarray()
-for elt in tfidf_matrix.toarray()[0]: print elt
 
-terms = tfidf_vectorizer.get_feature_names()
-print 'Model vocabulary:', '\n', terms
+# we can also access individual methods of steps in the pipeline using the named_steps function
+vocabulary = pipeline.named_steps['tf_vectorizer_and_idf'].get_feature_names()
+print 'Size of vocabulary: %i' % len(vocabulary)
 
 
 
 ### Create distance matrix
-from sklearn.metrics.pairwise import cosine_similarity
 dist = 1 - cosine_similarity(tfidf_matrix)
+
+
+quit()
+
+
+### Create Ward Linkage matrix
+linkage_matrix = ward(dist)
 
 
 
 ### Run clustering algorithm to understand hidden structure within the keywords / descriptions
 import matplotlib.pyplot as plt
 from scipy.cluster.hierarchy import ward, dendrogram
-
-# define the linkage_matrix using ward clustering pre-computed distances
-linkage_matrix = ward(dist)
 
 fig, ax = plt.subplots(figsize=(15, 20)) # set size
 ax = dendrogram(linkage_matrix, orientation="right", labels=keywords)
@@ -127,8 +213,4 @@ plt.tick_params(\
 
 plt.tight_layout() # show plot with tight layout
 plt.show()
-
-
-
-
 
