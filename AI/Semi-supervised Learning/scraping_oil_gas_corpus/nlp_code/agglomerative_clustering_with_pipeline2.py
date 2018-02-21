@@ -72,7 +72,7 @@ import nltk
 from nltk.stem.snowball import SnowballStemmer
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-
+from scipy.cluster.hierarchy import ward
 
 # define custom transformer to sanity check a pipeline steps input and output
 class PipelineDebugger(TransformerMixin):
@@ -148,9 +148,15 @@ class cosine_metric(BaseEstimator, TransformerMixin):
 		return self
 
 	def transform(self, X):
-		return 1 - cosine_similarity(X)
+		return 1 - cosine_similarity(X)	# https://en.wikipedia.org/wiki/Cosine_similarity
 
+# define custom transformer to apply agglomerative clustering using the Ward linkage method of Scipy's hierarchy class
+class ward_linkage(BaseEstimator, TransformerMixin):
+	def fit(self, X, y=None):
+		return self
 
+	def transform(self, X):
+		return ward(X)	# https://en.wikipedia.org/wiki/Ward%27s_method
 
 
 
@@ -167,22 +173,12 @@ tfidf_vectorizer = TfidfVectorizer(
 pipeline = Pipeline([
 		('nlp_clean_docs', PipelineDebugger( nlp_doc_clean() )),
 		('tf_vectorizer_and_idf', PipelineDebugger( tfidf_vectorizer )),
-		('create_cosine_dist_matrix', PipelineDebugger( cosine_metric() ))
-#		('create_ward_linkage_matrix', PipelineDebugger(ward()))
+		('create_cosine_dist_matrix', PipelineDebugger( cosine_metric() )),
+		('create_ward_linkage_matrix', PipelineDebugger( ward_linkage() ))
 	])
 
-
-dist = pipeline.fit_transform(descriptions)
-print dist
-
-quit()
-
-
-
-### Use Pipeline
-# call fit_transform to use the pipeline
-tfidf_matrix = pipeline.fit_transform(descriptions)
-print tfidf_matrix.toarray()
+### Use pipeline (call inherited fit_transform method)
+linkage_matrix = pipeline.fit_transform(descriptions)
 
 # we can also access individual methods of steps in the pipeline using the named_steps function
 print pipeline.named_steps
@@ -197,12 +193,20 @@ vocabulary = tfidf_object.get_feature_names()
 print 'Size of vocabulary: %i' % len(vocabulary)
 
 
-
-### Create distance matrix
-dist = 1 - cosine_similarity(tfidf_matrix)
-
+### Plot
 
 quit()
+
+
+
+
+
+
+
+
+
+
+
 
 
 ### Create Ward Linkage matrix
