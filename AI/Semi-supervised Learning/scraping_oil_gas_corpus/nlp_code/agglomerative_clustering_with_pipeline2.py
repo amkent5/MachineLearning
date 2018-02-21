@@ -142,6 +142,17 @@ class nlp_doc_clean(BaseEstimator, TransformerMixin):
 	def transform(self, jargon_descs):
 		return [ self.doc_clean(desc) for desc in jargon_descs ]
 
+# define custom transformer to apply cosine similarity metric
+class cosine_metric(BaseEstimator, TransformerMixin):
+
+	def fit(self, X, y=None):
+		return self
+
+	def transform(self, X):
+		return 1 - cosine_similarity(X)
+
+
+
 
 
 ### Build pipeline
@@ -156,10 +167,15 @@ tfidf_vectorizer = TfidfVectorizer(
 
 pipeline = Pipeline([
 		('nlp_clean_docs', PipelineDebugger( nlp_doc_clean() )),
-		('tf_vectorizer_and_idf', PipelineDebugger( tfidf_vectorizer ))
-#		('create_cosine_dist_matrix', PipelineDebugger(1 - cosine_similarity()))
+		('tf_vectorizer_and_idf', PipelineDebugger( tfidf_vectorizer )),
+		('create_cosine_dist_matrix', PipelineDebugger( cosine_metric() ))
 #		('create_ward_linkage_matrix', PipelineDebugger(ward()))
 	])
+
+
+dist = pipeline.fit_transform(descriptions)
+
+quit()
 
 
 
