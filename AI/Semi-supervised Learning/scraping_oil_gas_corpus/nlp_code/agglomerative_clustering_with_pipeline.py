@@ -1,14 +1,4 @@
-### agglomerative_clustering.py with scikit-learn pipeline
-
-"""
-Possible pipeline steps:
-	- the tokenize_and_stem function
-	- the TfidfVectorizer step
-	- the creation of the distance matrix
-
-"""
-
-##### Agglomerative clustering of Oil and Gas jargon
+##### Agglomerative clustering of Oil and Gas jargon with scikit-learn pipeline
 
 ### Load scraped data
 import pickle
@@ -72,11 +62,14 @@ import nltk
 from nltk.stem.snowball import SnowballStemmer
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-
+from scipy.cluster.hierarchy import ward
 
 # define custom transformer to sanity check a pipeline steps input and output
 class PipelineDebugger(TransformerMixin):
-
+	"""
+	Input: 	a transformer object
+	Output: console info on data flow before and after input transformer
+	"""
 	def __init__(self, transformer):
 		self.transformer = transformer
 
@@ -87,17 +80,17 @@ class PipelineDebugger(TransformerMixin):
 	def transform(self, X):
 		print '='*30, self.transformer.__class__.__name__, '='*30
 
-		rand_ix = random.randint(0, len(X))
+		#rand_ix = random.randint(0, len(X))
 		print '*'*5, 'Before', '*'*5
 		print type(X)
-		print X[rand_ix]
-		print type(X[rand_ix]), '\n'
+		print X[0]
+		print type(X[0]), '\n'
 
 		X = self.transformer.transform(X)
 		print '*'*5, 'After', '*'*5
 		print type(X)
-		print X[rand_ix]
-		print type(X[rand_ix]), '\n'*2
+		print X[0]
+		print type(X[0]), '\n'*2
 
 		return X
 
@@ -105,7 +98,7 @@ class PipelineDebugger(TransformerMixin):
 class nlp_doc_clean(BaseEstimator, TransformerMixin):
 	"""
 	Input:	a list of document strings
-	Output: a list of cleaned document strings
+	Output: a list of cleaned token strings
 
 	"""
 	def __init__(self):
@@ -142,10 +135,35 @@ class nlp_doc_clean(BaseEstimator, TransformerMixin):
 	def transform(self, jargon_descs):
 		return [ self.doc_clean(desc) for desc in jargon_descs ]
 
+# define custom transformer to apply cosine similarity metric
+class cosine_metric(BaseEstimator, TransformerMixin):
+	"""
+	Input: 	a matrix of vector representations of words/docs (i.e. output of CountVectorizer or TfidfVectorizer classes)
+	Output:	a matrix where each element contains all cosine distances between the element and other elements
+	"""
+	def fit(self, X, y=None):
+		return self
+
+	def transform(self, X):
+		return 1 - cosine_similarity(X)	# https://en.wikipedia.org/wiki/Cosine_similarity
+
+# define custom transformer to apply agglomerative clustering using the Ward linkage method of Scipy's hierarchy class
+class ward_linkage(BaseEstimator, TransformerMixin):
+	"""
+	Input: 	a pre-computed distance matrix
+	Output: a linkage matrix where each row has the format [ix1, ix2, dist, sample_count] where ix1 and ix2 are the
+			indices of the clusters the algorithm has decided to merge, dist is the distance between the clusters and 
+			sample_count is the number of samples created within the (hierarchical) cluster
+	"""
+	def fit(self, X, y=None):
+		return self
+
+	def transform(self, X):
+		return ward(X)	# https://en.wikipedia.org/wiki/Ward%27s_method
+
 
 
 ### Build pipeline
-
 tfidf_vectorizer = TfidfVectorizer(
 	min_df=0.01,	# ignore terms that appear in less than 1% of the documents
 	max_df = 0.8,	# ignore terms that appear in more than 80% of the documents
@@ -156,17 +174,15 @@ tfidf_vectorizer = TfidfVectorizer(
 
 pipeline = Pipeline([
 		('nlp_clean_docs', PipelineDebugger( nlp_doc_clean() )),
-		('tf_vectorizer_and_idf', PipelineDebugger( tfidf_vectorizer ))
-#		('create_cosine_dist_matrix', PipelineDebugger(1 - cosine_similarity()))
-#		('create_ward_linkage_matrix', PipelineDebugger(ward()))
+		('tf_vectorizer_and_idf', PipelineDebugger( tfidf_vectorizer )),
+		('create_cosine_dist_matrix', PipelineDebugger( cosine_metric() )),
+		('create_ward_linkage_matrix', PipelineDebugger( ward_linkage() ))
 	])
 
 
 
-### Use Pipeline
-# call fit_transform to use the pipeline
-tfidf_matrix = pipeline.fit_transform(descriptions)
-print tfidf_matrix.toarray()
+### Use pipeline (call inherited fit_transform method)
+linkage_matrix = pipeline.fit_transform(descriptions)
 
 # we can also access individual methods of steps in the pipeline using the named_steps function
 print pipeline.named_steps
@@ -177,28 +193,13 @@ print pipeline.named_steps
 #vocabulary = pipeline.named_steps['tf_vectorizer_and_idf'].get_feature_names()
 tfidf_object = pipeline.named_steps['tf_vectorizer_and_idf'].transformer
 vocabulary = tfidf_object.get_feature_names()
-
 print 'Size of vocabulary: %i' % len(vocabulary)
 
 
 
-### Create distance matrix
-dist = 1 - cosine_similarity(tfidf_matrix)
-
-print dist
-print len(dist)
-
-quit()
-
-
-### Create Ward Linkage matrix
-linkage_matrix = ward(dist)
-
-
-
-### Run clustering algorithm to understand hidden structure within the keywords / descriptions
+### Plot results of agglomerative clustering pipeline
 import matplotlib.pyplot as plt
-from scipy.cluster.hierarchy import ward, dendrogram
+from scipy.cluster.hierarchy import dendrogram
 
 fig, ax = plt.subplots(figsize=(15, 20)) # set size
 ax = dendrogram(linkage_matrix, orientation="right", labels=keywords)
@@ -213,4 +214,9 @@ plt.tick_params(\
 
 plt.tight_layout() # show plot with tight layout
 plt.show()
+
+
+
+
+
 
