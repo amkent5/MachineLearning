@@ -202,23 +202,97 @@ import matplotlib.pyplot as plt
 from scipy.cluster.hierarchy import dendrogram
 
 fig, ax = plt.subplots(figsize=(15, 20)) # set size
-ax = dendrogram(linkage_matrix, orientation="right", labels=keywords)
-
-plt.tick_params(\
-    axis= 'x',			# changes apply to the x-axis
-    which='both',		# both major and minor ticks are affected
-    bottom='off',		# ticks along the bottom edge are off
-    top='off',			# ticks along the top edge are off
-    labelbottom='off'
-    )
+ax = dendrogram(
+	linkage_matrix,
+	labels=keywords,
+	leaf_font_size=12.,
+	leaf_rotation=45.
+	)
 
 plt.tight_layout() # show plot with tight layout
+plt.ylabel('Ward distance')
 plt.show()
 
 
 
 ### Next steps:
-###	determine number of hierarchical cluster centroids in our dendrogram
-### plot (in 2D) the centroid clusters (non-hierarchical)
+## 1) Determine number of hierarchical cluster centroids in our dendrogram
+## 2) Plot (in 2D) the centroid clusters (non-hierarchical)
+
+
+### 1) Determining the number of clusters
+# https://joernhees.de/blog/2015/08/26/scipy-hierarchical-clustering-and-dendrogram-tutorial/
+
+# we have 400 merges in our dendrogram linkage matrix
+# linkage_matrix[-1] is the last merge, which should exhibit a high distance value:
+print linkage_matrix[-1]	# high distance value of 8.52 is expected
+							# we can also see that sample_count param is 400 as expected
+
+# let's create a truncated dendrogram showing only the last 12 merges
+# this will cut away the noisey micro-clusters and enable us to consider macro-clusters
+fig, ax = plt.subplots(figsize=(15, 20)) # set size
+ax = dendrogram(
+	linkage_matrix,
+	truncate_mode='lastp',  # show only the last p merged clusters
+    p=12,  					# last 12 merges
+    leaf_font_size=12.,
+    show_contracted=True, 	# to get a distribution impression in truncated branches
+	)
+
+plt.xlabel('Number of merges in cluster')
+plt.ylabel('Ward distance')
+plt.show()
+
+
+
+### Selecting clusters...
+# a large jump in distance is typically what we're interested in if we want to argue for
+# a certain number of clusters.
+
+# by inspecting the cut down dendrogram we can see that a distance cut-off at around 
+# 6 maximises jumps in distance for each cluster tendril:
+max_dist = 6
+fig, ax = plt.subplots(figsize=(15, 20)) # set size
+ax = dendrogram(
+	linkage_matrix,
+	truncate_mode='lastp',  # show only the last p merged clusters
+    p=12,  					# last 12 merges
+    leaf_font_size=12.,
+    show_contracted=True, 	# to get a distribution impression in truncated branches
+	)
+
+plt.axhline(y=max_dist, color='r', linestyle='--')
+plt.xlabel('Number of merges in cluster')
+plt.ylabel('Ward distance')
+plt.show()
+
+
+
+### 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
