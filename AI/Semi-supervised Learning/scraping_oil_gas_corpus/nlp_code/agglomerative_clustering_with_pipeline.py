@@ -217,6 +217,8 @@ plt.show()
 
 
 
-
+### Next steps:
+###	determine number of hierarchical cluster centroids in our dendrogram
+### plot (in 2D) the centroid clusters (non-hierarchical)
 
 
