@@ -87,17 +87,17 @@ class PipelineDebugger(TransformerMixin):
 	def transform(self, X):
 		print '='*30, self.transformer.__class__.__name__, '='*30
 
-		rand_ix = random.randint(0, len(X))
+		#rand_ix = random.randint(0, len(X))
 		print '*'*5, 'Before', '*'*5
 		print type(X)
-		print X[rand_ix]
-		print type(X[rand_ix]), '\n'
+		print X[0]
+		print type(X[0]), '\n'
 
 		X = self.transformer.transform(X)
 		print '*'*5, 'After', '*'*5
 		print type(X)
-		print X[rand_ix]
-		print type(X[rand_ix]), '\n'*2
+		print X[0]
+		print type(X[0]), '\n'*2
 
 		return X
 
@@ -144,7 +144,6 @@ class nlp_doc_clean(BaseEstimator, TransformerMixin):
 
 # define custom transformer to apply cosine similarity metric
 class cosine_metric(BaseEstimator, TransformerMixin):
-
 	def fit(self, X, y=None):
 		return self
 
@@ -174,6 +173,7 @@ pipeline = Pipeline([
 
 
 dist = pipeline.fit_transform(descriptions)
+print dist
 
 quit()
 

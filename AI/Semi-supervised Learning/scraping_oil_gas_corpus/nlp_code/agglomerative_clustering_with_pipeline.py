@@ -185,6 +185,8 @@ print 'Size of vocabulary: %i' % len(vocabulary)
 ### Create distance matrix
 dist = 1 - cosine_similarity(tfidf_matrix)
 
+print dist
+print len(dist)
 
 quit()
 
