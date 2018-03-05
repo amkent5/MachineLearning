@@ -1,4 +1,4 @@
-##### Agglomerative clustering of Oil and Gas jargon with scikit-learn pipeline
+##### Agglomerative clustering of Oil and Gas jargon with scikit-learn pipeline and further cluster analysis
 
 ### Load scraped data
 import pickle
@@ -65,7 +65,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 from scipy.cluster.hierarchy import ward
 
 # define custom transformer to sanity check a pipeline steps input and output
-class PipelineDebugger(TransformerMixin):
+class pipeline_debugger(TransformerMixin):
 	"""
 	Input: 	a transformer object
 	Output: console info on data flow before and after input transformer
@@ -173,10 +173,10 @@ tfidf_vectorizer = TfidfVectorizer(
 	)
 
 pipeline = Pipeline([
-		('nlp_clean_docs', PipelineDebugger( nlp_doc_clean() )),
-		('tf_vectorizer_and_idf', PipelineDebugger( tfidf_vectorizer )),
-		('create_cosine_dist_matrix', PipelineDebugger( cosine_metric() )),
-		('create_ward_linkage_matrix', PipelineDebugger( ward_linkage() ))
+		('nlp_clean_docs', pipeline_debugger( nlp_doc_clean() )),
+		('tf_vectorizer_and_idf', pipeline_debugger( tfidf_vectorizer )),
+		('create_cosine_dist_matrix', pipeline_debugger( cosine_metric() )),
+		('create_ward_linkage_matrix', pipeline_debugger( ward_linkage() ))
 	])
 
 
@@ -187,10 +187,7 @@ linkage_matrix = pipeline.fit_transform(descriptions)
 # we can also access individual methods of steps in the pipeline using the named_steps function
 print pipeline.named_steps
 
-# Note: as we are using the PipelineDebugger class the below uncommented line doesn't work as 
-# the named step for tf_vectorizer_and_idf is a PipelineDebugger class object. So we have to 
-# call the .transformer init from the PipelineDebugger object to access the tf_vectorizer_and_idf methods
-#vocabulary = pipeline.named_steps['tf_vectorizer_and_idf'].get_feature_names()
+# Note: as we are using the pipeline_debugger wrapper class we must call the transformer method to access the inner class object
 tfidf_object = pipeline.named_steps['tf_vectorizer_and_idf'].transformer
 vocabulary = tfidf_object.get_feature_names()
 print 'Size of vocabulary: %i' % len(vocabulary)
@@ -215,20 +212,17 @@ plt.show()
 
 
 
-### Next steps:
-## 1) Determine number of hierarchical cluster centroids in our dendrogram
-## 2) Plot (in 2D) the centroid clusters (non-hierarchical)
+### Derive main clusters from results of agglomerative clustering and visualise in 2D
 
-
-### 1) Determining the number of clusters
+## Determining the number of clusters...
 # https://joernhees.de/blog/2015/08/26/scipy-hierarchical-clustering-and-dendrogram-tutorial/
 
 # we have 400 merges in our dendrogram linkage matrix
-# linkage_matrix[-1] is the last merge, which should exhibit a high distance value:
-print linkage_matrix[-1]	# high distance value of 8.52 is expected
-							# we can also see that sample_count param is 400 as expected
+# linkage_matrix[-1] is the last merge, which should exhibit a high distance value and a sample_count equal to the total number of samples
+print linkage_matrix[-1]	# high distance value of 8.52 as expected
+							# sample_count param is 400 as expected
 
-# let's create a truncated dendrogram showing only the last 12 merges
+# create a truncated dendrogram showing only the last 12 merges
 # this will cut away the noisey micro-clusters and enable us to consider macro-clusters
 fig, ax = plt.subplots(figsize=(15, 20)) # set size
 ax = dendrogram(
@@ -243,14 +237,11 @@ plt.xlabel('Number of merges in cluster')
 plt.ylabel('Ward distance')
 plt.show()
 
-
-
-### Selecting clusters...
 # a large jump in distance is typically what we're interested in if we want to argue for
 # a certain number of clusters.
 
 # by inspecting the cut down dendrogram we can see that a distance cut-off at around 
-# 6 maximises jumps in distance for each cluster tendril:
+# ward distance 6 maximises jumps in distance for each cluster tree
 max_dist = 6
 fig, ax = plt.subplots(figsize=(15, 20)) # set size
 ax = dendrogram(
@@ -266,18 +257,32 @@ plt.xlabel('Number of merges in cluster')
 plt.ylabel('Ward distance')
 plt.show()
 
+# knowing max_dist (and therefore our number of clusters) we can use the fcluster class to map each observation to a cluster id
+from scipy.cluster.hierarchy import fcluster
 
+clusters = fcluster(linkage_matrix, max_dist, criterion='distance')
+print clusters
 
-### 
+# and use t-SNE (with precomputed distance metric) to reduce the data into 2D so we can visualise the clusters
+from sklearn.manifold import TSNE
 
+dim_redn = TSNE(metric="precomputed")
 
+# extract our cosine_similarity distance metric from the pipeline classes
+nlp_clean_docs_object = pipeline.named_steps['nlp_clean_docs'].transformer
+cleaned_vocab = nlp_clean_docs_object.transform( descriptions )
 
+cosine_dist_object = pipeline.named_steps['create_cosine_dist_matrix'].transformer
+distance_metric = cosine_dist_object.transform( tfidf_object.fit_transform( cleaned_vocab ) )
 
+X_reduced = dim_redn.fit_transform( abs(distance_metric) )	# https://github.com/scikit-learn/scikit-learn/issues/5772
 
+print X_reduced[:, 0], X_reduced[:, 1]
 
+plt.scatter( X_reduced[:, 0], X_reduced[:, 1], c=clusters, s=20*2**4 )
+plt.show()
 
-
-
+# We can see that by analysing the dendrogram we have managed to create well-defined clusters and visualise them for human interaction.
 
 
 

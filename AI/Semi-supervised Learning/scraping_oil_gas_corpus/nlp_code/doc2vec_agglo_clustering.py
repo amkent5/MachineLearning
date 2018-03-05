@@ -5,7 +5,7 @@ import pickle
 
 filename = '/Users/admin/Documents/Projects/MachineLearning/AI/Semi-supervised Learning/scraping_oil_gas_corpus/scraping_code/d_oil_and_gas_terms.pickle'
 with open(filename, 'rb') as handle:
-	d_data = pickle.load(handle)
+     d_data = pickle.load(handle)
 
 # sample
 for k, v in d_data.items(): print k, '\n', v, '\n'*2
@@ -36,42 +36,53 @@ from true north-the north, east, south and west directions have azimuths of 0, 9
 
 
 ### Process text
+import os
 import random
 import re
 import nltk
 from nltk.stem.snowball import SnowballStemmer
 
 # randomly sample 400 elements of the data dictionary
+# need the same result each time so pickle the cut down dict and load it in each time
 print len(d_data)	# 4931
-d_data = dict( (k, d_data[k]) for k in random.sample(d_data, 400) )
-print len(d_data)	# 400
+random_terms = '/Users/admin/Documents/Projects/MachineLearning/AI/Semi-supervised Learning/scraping_oil_gas_corpus/nlp_code/random_terms.pickle'
+if not os.path.isfile(random_terms):
+     d_data = dict( (k, d_data[k]) for k in random.sample(d_data, 400) )
+     with open(random_terms, 'wb') as handle:
+          pickle.dump(d_data, handle, protocol=pickle.HIGHEST_PROTOCOL)
+else:
+     with open(random_terms, 'rb') as handle:
+          d_data = pickle.load(handle)
+
+print len(d_data) # 400
+print d_data.keys()[0]
 
 # form keywords list and descriptions list
 keywords, descriptions = [], []
 for i in range(len(d_data)):
-	keywords.append( d_data.keys()[i] )
-	descriptions.append( d_data.values()[i] )
+     keywords.append( d_data.keys()[i] )
+     descriptions.append( d_data.values()[i] )
 
 # perform natural language cleaning
 stopwords = nltk.corpus.stopwords.words('english')
 stemmer = SnowballStemmer("english")
 def nlp_clean(doc):
 
-    # first tokenize by sentence, then by word to ensure that punctuation is caught as its own token
-    tokens = [word for sent in nltk.sent_tokenize(doc) for word in nltk.word_tokenize(sent)]
-    
-    # remove stop words
-    tokens = [ token for token in tokens if token not in stopwords ]
+     # first tokenize by sentence, then by word to ensure that punctuation is caught as its own token
+     tokens = [word for sent in nltk.sent_tokenize(doc) for word in nltk.word_tokenize(sent)]
 
-    # filter out any tokens not containing letters (e.g., numeric tokens, raw punctuation)
-    filtered_tokens = []
-    for token in tokens:
-        if re.search('[a-zA-Z]', token):
-            filtered_tokens.append(token)
+     # remove stop words
+     tokens = [ token for token in tokens if token not in stopwords ]
 
-    # stem
-    stems = [stemmer.stem(t) for t in filtered_tokens]
-    return stems
+     # filter out any tokens not containing letters (e.g., numeric tokens, raw punctuation)
+     filtered_tokens = []
+     for token in tokens:
+          if re.search('[a-zA-Z]', token):
+               filtered_tokens.append(token)
+
+     # stem
+     stems = [stemmer.stem(t) for t in filtered_tokens]
+     return stems
 
 docs = []
 for doc in descriptions: docs.append( nlp_clean(doc) )
@@ -213,12 +224,12 @@ fig, ax = plt.subplots(figsize=(15, 20)) # set size
 ax = dendrogram(linkage_matrix, orientation="right", labels=keywords)
 
 plt.tick_params(\
-    axis= 'x',			# changes apply to the x-axis
-    which='both',		# both major and minor ticks are affected
-    bottom='off',		# ticks along the bottom edge are off
-    top='off',			# ticks along the top edge are off
-    labelbottom='off'
-    )
+     axis= 'x',			# changes apply to the x-axis
+     which='both',		# both major and minor ticks are affected
+     bottom='off',		# ticks along the bottom edge are off
+     top='off',			# ticks along the top edge are off
+     labelbottom='off'
+     )
 
 plt.tight_layout() # show plot with tight layout
 plt.show()
@@ -232,10 +243,26 @@ from sklearn.manifold import TSNE
 # we need to change our distance metric slightly (https://en.wikipedia.org/wiki/Cosine_similarity):
 dist_metric = 1.0 - dist
 
-model = manifold.TSNE(metric="precomputed")
-Y = model.fit_transform(A) 
+tsne_model = TSNE(metric="precomputed")
+X_reduced = tsne_model.fit_transform( abs(dist_metric) )
 
+print X_reduced[:, 0], X_reduced[:, 1]
 
+#plt.scatter( X_reduced[:, 0], X_reduced[:, 1], s=20*2**4 )
+#plt.show()
+
+for i in range(len(keywords)):
+     plt.scatter( X_reduced[i, 0], X_reduced[i, 1] )
+     plt.annotate(
+          keywords[i],
+          xy=( X_reduced[i, 0], X_reduced[i, 1] ),
+          xytext=(5, 2),
+          textcoords='offset points',
+          ha='right',
+          va='bottom'
+     )
+
+plt.show()
 
 
 
