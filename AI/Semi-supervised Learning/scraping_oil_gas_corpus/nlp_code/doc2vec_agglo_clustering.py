@@ -232,7 +232,7 @@ plt.tick_params(\
      )
 
 plt.tight_layout() # show plot with tight layout
-plt.show()
+#plt.show()
 
 
 
@@ -262,7 +262,89 @@ for i in range(len(keywords)):
           va='bottom'
      )
 
-plt.show()
+#plt.show()
+
+
+
+### Can we do some vector arithmetic for this example?
+"""
+The classic example is:
+King - Man + Woman = Queen
+
+This works well, Man and Woman are correlated and are a subset of King.
+We should try and find an example that follows a similar principle..
+
+In word2vec we can do things like:
+model.most_similar(positive=['woman', 'king'], negative=['man'], topn=1)   # king - man + woman = queen
+[('queen', 0.50882536)]
+model.doesnt_match("breakfast cereal dinner lunch";.split())
+'cereal'
+model.similarity('woman', 'man')
+0.73723527
+"""
+
+# some first examples:
+#print model.docvecs.most_similar( positive=['crude oil', 'trapped oil'], topn=3 )
+
+for i in range(20):
+     rix_1, rix_2 = random.randint(1, 399), random.randint(1, 399)
+     vec_add = model.docvecs.most_similar( positive=[keywords[rix_1], keywords[rix_2]], topn=1 )
+
+     print keywords[rix_1]
+     print descriptions[rix_1], '\n'
+
+     print keywords[rix_2]
+     print descriptions[rix_2], '\n'
+
+     print 'Vector addition result:'
+     print vec_add[0][0]
+     print [ descriptions[i] for i in range(len(descriptions)) if keywords[i] == vec_add[0][0] ], '\n'*3
+
+"""
+Good results from the addition:
+
+kilogram per cubic meter
+The SI unit of measurement for density. Mud weights are typically expressed in kg/m3. The conversion factor from lbm/gal 
+to kg/m3 is 120. For example, 12 lbm/gal = 1440 kg/m3.
+
++
+
+zinc carbonate
+A neutral zinc salt, ZnCO3, which can be used as a sulfide scavenger in water-base muds. Zinc carbonate is less soluble 
+than zinc basic carbonate and perhaps slower to react with sulfide ions. Treatment level is about 0.1 lbm/bbl per 50 mg/L sulfide 
+ion (determined by Garrett Gas Train sulfide analysis of the filtrate).
+
+=
+
+equivalent weight
+[u'The molecular weight of an element, molecule or ion divided by its valence (or valence change for a redox reaction). For example, 
+the molecular weight of calcium hydroxide, or "slaked lime," [Ca(OH)2] is 72.10. Because the valency of calcium in this case is 2, 
+the equivalent weight of lime is 36.05. Mud analyses give concentrations in various units: ppm, mg/L, wt.% and epm. Mud engineers should 
+recognize the meaning of epm and equivalent weight of a mud chemical.']
+
+We can see that by adding a chemical aspect to the kilogram, we have a resultant vector of equivalent weight - which is all about molecular
+weight. This makes a lot of sense.
+
+
+
+
+"""
+
+print '\n'*5
+print model.docvecs.most_similar( positive=['kilogram per cubic meter', 'zinc carbonate'], topn=4 ) # equivalent weight
+
+# more to try
+print model.docvecs.most_similar( positive=['kilogram per cubic meter', 'zinc carbonate'], negative=['random error'], topn=4 )
+print model.docvecs.most_similar( positive=['sodium carbonate', 'crude oil'], topn=4 )
+
+
+
+
+
+
+
+
+
 
 
 
