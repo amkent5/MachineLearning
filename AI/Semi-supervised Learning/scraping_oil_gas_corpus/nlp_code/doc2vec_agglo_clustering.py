@@ -40,6 +40,8 @@ import os
 import random
 import re
 import nltk
+nltk.download('stopwords')
+nltk.download('punkt')
 from nltk.stem.snowball import SnowballStemmer
 
 # randomly sample 400 elements of the data dictionary
@@ -221,22 +223,83 @@ from scipy.cluster.hierarchy import ward, dendrogram
 linkage_matrix = ward(dist)
 
 fig, ax = plt.subplots(figsize=(15, 20)) # set size
-ax = dendrogram(linkage_matrix, orientation="right", labels=keywords)
-
-plt.tick_params(\
-     axis= 'x',			# changes apply to the x-axis
-     which='both',		# both major and minor ticks are affected
-     bottom='off',		# ticks along the bottom edge are off
-     top='off',			# ticks along the top edge are off
-     labelbottom='off'
+ax = dendrogram(
+     linkage_matrix,
+     labels=keywords,
+     leaf_font_size=12.,
+     leaf_rotation=45.
      )
 
 plt.tight_layout() # show plot with tight layout
-#plt.show()
+plt.ylabel('Ward distance')
+plt.show()
 
 
 
-### Agglomerative clustering looks good, let's use t-SNE to cluster the doc vectors too
+### Extract document classes from dendrogram
+
+# create a truncated dendrogram showing only the last 12 merges
+# this will cut away the noisey micro-clusters and enable us to consider macro-clusters
+fig, ax = plt.subplots(figsize=(15, 20)) # set size
+ax = dendrogram(
+     linkage_matrix,
+     truncate_mode='lastp',   # show only the last p merged clusters
+     p=12,                    # last 12 merges
+     leaf_font_size=12.,
+     show_contracted=True,    # to get a distribution impression in truncated branches
+     )
+
+plt.xlabel('Number of merges in cluster')
+plt.ylabel('Ward distance')
+plt.show()
+
+# a large jump in distance is typically what we're interested in if we want to argue for
+# a certain number of clusters (https://joernhees.de/blog/2015/08/26/scipy-hierarchical-clustering-and-dendrogram-tutorial/)
+
+# by inspecting the cut down dendrogram we can see that a distance cut-off at around 
+# ward distance 20 maximises jumps in distance for each cluster tree, generating 6 document classes
+max_dist = 20
+fig, ax = plt.subplots(figsize=(15, 20)) # set size
+ax = dendrogram(
+     linkage_matrix,
+     truncate_mode='lastp',   # show only the last p merged clusters
+     p=12,                    # last 12 merges
+     leaf_font_size=12.,
+     show_contracted=True,    # to get a distribution impression in truncated branches
+     )
+
+plt.axhline(y=max_dist, color='r', linestyle='--')
+plt.xlabel('Number of merges in cluster')
+plt.ylabel('Ward distance')
+plt.show()
+
+# knowing max_dist (our number of clusters) we can use the fcluster class to map each observation to a cluster id
+from scipy.cluster.hierarchy import fcluster
+
+clusters = fcluster(linkage_matrix, max_dist, criterion='distance')
+print clusters
+"""
+[2 5 4 2 6 3 1 4 1 2 5 1 1 1 4 5 4 1 2 4 3 2 5 5 3 1 1 5 4 2 1 1 1 2 3 3 1
+ 6 3 3 3 2 3 3 2 5 3 6 5 6 2 2 3 3 4 4 1 3 5 1 1 1 4 1 4 1 1 1 6 4 4 3 2 6
+ 6 5 6 1 2 6 2 4 4 3 1 5 2 2 1 2 6 5 2 1 6 1 1 2 6 1 1 4 3 3 5 1 5 2 4 2 1
+ 4 4 3 2 6 6 5 5 1 6 2 5 4 1 2 1 3 3 2 3 2 4 2 5 4 4 1 6 4 5 5 4 1 3 3 6 6
+ 2 4 4 2 6 1 1 2 4 5 2 4 2 4 2 3 2 1 6 2 4 6 1 3 6 5 6 2 3 3 3 1 3 3 3 1 1
+ 3 2 1 2 2 6 2 4 2 6 5 1 2 2 2 4 4 6 1 1 1 2 5 1 1 1 1 1 2 1 4 4 2 6 4 4 1
+ 1 1 4 5 1 6 2 4 3 3 1 6 1 1 1 2 3 2 5 2 4 1 6 4 6 6 3 3 2 6 6 5 2 4 6 5 2
+ 5 1 2 3 4 1 3 6 5 6 3 4 2 1 4 4 4 1 5 6 2 5 3 1 3 1 3 6 2 2 6 1 4 3 1 6 1
+ 5 6 6 2 6 3 5 6 1 3 1 4 1 3 1 1 3 6 6 6 1 1 3 6 6 5 2 3 6 4 2 1 2 4 6 6 1
+ 5 1 2 1 1 3 4 6 2 1 3 1 1 1 5 1 2 2 1 3 5 3 4 4 2 5 1 6 2 5 3 2 2 1 1 3 2
+ 5 1 3 2 3 1 6 4 4 4 1 5 6 2 1 2 2 3 6 2 6 1 6 3 5 3 1 5 2 3]
+"""
+# So, using unsupervised learning we have managed to derive class labels for a dataset that is completely beyond the understanding
+# of the programmer. We have managed to craft a semi-supervised dataset, where 400 of the labels are known. Now let's use keras to
+# create a classifier to predict labels for more unseen data.
+
+# First though, let's visualise the clusters in 2D, with the keyword labels attached and try some vector arithmetic in our embedding-space!
+
+
+
+### Use t-SNE to cluster the doc vectors too with their keywords displayed, and the class clustering colour
 from sklearn.manifold import TSNE
 
 # as per this SO article (https://stackoverflow.com/questions/36545434/cosine-similarity-tsne-in-sklearn-manifold)
@@ -244,15 +307,15 @@ from sklearn.manifold import TSNE
 dist_metric = 1.0 - dist
 
 tsne_model = TSNE(metric="precomputed")
-X_reduced = tsne_model.fit_transform( abs(dist_metric) )
-
+X_reduced = tsne_model.fit_transform( abs(dist_metric) )    # https://github.com/scikit-learn/scikit-learn/issues/5772
 print X_reduced[:, 0], X_reduced[:, 1]
 
 #plt.scatter( X_reduced[:, 0], X_reduced[:, 1], s=20*2**4 )
 #plt.show()
 
+colours = ['#F18F01', '#048BA8', '#2E4057', '#99C24D', '#FF2216', '#D4ADCF']     # have 6 colours here but you can't guarantee the number of clusters we'll generate as there is some randomness in the system
 for i in range(len(keywords)):
-     plt.scatter( X_reduced[i, 0], X_reduced[i, 1] )
+     plt.scatter( X_reduced[i, 0], X_reduced[i, 1], s=20*2**4, color=colours[ clusters[i] - 1 ])
      plt.annotate(
           keywords[i],
           xy=( X_reduced[i, 0], X_reduced[i, 1] ),
@@ -262,7 +325,7 @@ for i in range(len(keywords)):
           va='bottom'
      )
 
-#plt.show()
+plt.show()
 
 
 
@@ -271,7 +334,7 @@ for i in range(len(keywords)):
 The classic example is:
 King - Man + Woman = Queen
 
-This works well, Man and Woman are correlated and are a subset of King.
+This works well, Man and Woman are clearly semantically correlated and are also a subset of Royalty (King and Queen).
 We should try and find an example that follows a similar principle..
 
 In word2vec we can do things like:
@@ -283,9 +346,8 @@ model.similarity('woman', 'man')
 0.73723527
 """
 
-# some first examples:
-#print model.docvecs.most_similar( positive=['crude oil', 'trapped oil'], topn=3 )
-
+# As we have limited knowledge of the meaning behind the dataset, try some random combinations of vector
+# additions and see if the results are a) interpretable and b) meaningful
 for i in range(20):
      rix_1, rix_2 = random.randint(1, 399), random.randint(1, 399)
      vec_add = model.docvecs.most_similar( positive=[keywords[rix_1], keywords[rix_2]], topn=1 )
@@ -325,19 +387,7 @@ recognize the meaning of epm and equivalent weight of a mud chemical.']
 We can see that by adding a chemical aspect to the kilogram, we have a resultant vector of equivalent weight - which is all about molecular
 weight. This makes a lot of sense.
 
-
-
-
 """
-
-print '\n'*5
-print model.docvecs.most_similar( positive=['kilogram per cubic meter', 'zinc carbonate'], topn=4 ) # equivalent weight
-
-# more to try
-print model.docvecs.most_similar( positive=['kilogram per cubic meter', 'zinc carbonate'], negative=['random error'], topn=4 )
-print model.docvecs.most_similar( positive=['sodium carbonate', 'crude oil'], topn=4 )
-
-
 
 
 
