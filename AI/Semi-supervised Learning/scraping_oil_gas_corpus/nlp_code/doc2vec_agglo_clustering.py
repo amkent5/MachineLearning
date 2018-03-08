@@ -3,7 +3,8 @@
 ### Load scraped data
 import pickle
 
-filename = '/Users/admin/Documents/Projects/MachineLearning/AI/Semi-supervised Learning/scraping_oil_gas_corpus/scraping_code/d_oil_and_gas_terms.pickle'
+#filename = '/Users/admin/Documents/Projects/MachineLearning/AI/Semi-supervised Learning/scraping_oil_gas_corpus/scraping_code/d_oil_and_gas_terms.pickle'
+filename = '/Users/Ash/Projects/MachineLearning/AI/Semi-supervised Learning/scraping_oil_gas_corpus/scraping_code/d_oil_and_gas_terms.pickle'
 with open(filename, 'rb') as handle:
      d_data = pickle.load(handle)
 
@@ -47,7 +48,8 @@ from nltk.stem.snowball import SnowballStemmer
 # randomly sample 400 elements of the data dictionary
 # need the same result each time so pickle the cut down dict and load it in each time
 print len(d_data)	# 4931
-random_terms = '/Users/admin/Documents/Projects/MachineLearning/AI/Semi-supervised Learning/scraping_oil_gas_corpus/nlp_code/random_terms.pickle'
+#random_terms = '/Users/admin/Documents/Projects/MachineLearning/AI/Semi-supervised Learning/scraping_oil_gas_corpus/nlp_code/random_terms.pickle'
+random_terms = '/Users/Ash/Projects/MachineLearning/AI/Semi-supervised Learning/scraping_oil_gas_corpus/nlp_code/random_terms.pickle'
 if not os.path.isfile(random_terms):
      d_data = dict( (k, d_data[k]) for k in random.sample(d_data, 400) )
      with open(random_terms, 'wb') as handle:
