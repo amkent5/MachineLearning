@@ -80,7 +80,7 @@ def nlp_clean(doc):
     lowers = [ token.lower() for token in tokens ]
 
     # remove stop words
-    stopped = [ lower for lower in lowers if lower not in self.stopwords ]
+    stopped = [ lower for lower in lowers if lower not in stopwords ]
 
     # filter out any tokens not containing letters (e.g., numeric tokens, raw punctuation)
     filtered_tokens = []
@@ -89,7 +89,7 @@ def nlp_clean(doc):
             filtered_tokens.append(token)
 
     # reduce tokens to base / stemmed form
-    stems = [ self.stemmer.stem(token) for token in filtered_tokens ]
+    stems = [ stemmer.stem(token) for token in filtered_tokens ]
     return stems
 
 docs = []

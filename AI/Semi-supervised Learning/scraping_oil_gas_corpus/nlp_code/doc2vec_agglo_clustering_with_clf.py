@@ -2,6 +2,7 @@
 
 ### Load scraped data
 import pickle
+import numpy as np
 
 #filename = '/Users/admin/Documents/Projects/MachineLearning/AI/Semi-supervised Learning/scraping_oil_gas_corpus/scraping_code/d_oil_and_gas_terms.pickle'
 filename = '/Users/Ash/Projects/MachineLearning/AI/Semi-supervised Learning/scraping_oil_gas_corpus/scraping_code/d_oil_and_gas_terms.pickle'
@@ -80,7 +81,7 @@ def nlp_clean(doc):
     lowers = [ token.lower() for token in tokens ]
 
     # remove stop words
-    stopped = [ lower for lower in lowers if lower not in self.stopwords ]
+    stopped = [ lower for lower in lowers if lower not in stopwords ]
 
     # filter out any tokens not containing letters (e.g., numeric tokens, raw punctuation)
     filtered_tokens = []
@@ -89,7 +90,7 @@ def nlp_clean(doc):
             filtered_tokens.append(token)
 
     # reduce tokens to base / stemmed form
-    stems = [ self.stemmer.stem(token) for token in filtered_tokens ]
+    stems = [ stemmer.stem(token) for token in filtered_tokens ]
     return stems
 
 docs = []
@@ -238,7 +239,7 @@ ax = dendrogram(
 
 plt.tight_layout() # show plot with tight layout
 plt.ylabel('Ward distance')
-plt.show()
+#plt.show()
 
 
 
@@ -257,7 +258,7 @@ ax = dendrogram(
 
 plt.xlabel('Number of merges in cluster')
 plt.ylabel('Ward distance')
-plt.show()
+#plt.show()
 
 # a large jump in distance is typically what we're interested in if we want to argue for
 # a certain number of clusters (https://joernhees.de/blog/2015/08/26/scipy-hierarchical-clustering-and-dendrogram-tutorial/)
@@ -277,7 +278,7 @@ ax = dendrogram(
 plt.axhline(y=max_dist, color='r', linestyle='--')
 plt.xlabel('Number of merges in cluster')
 plt.ylabel('Ward distance')
-plt.show()
+#plt.show()
 
 # knowing max_dist (our number of clusters) we can use the fcluster class to map each observation to a cluster id
 from scipy.cluster.hierarchy import fcluster
@@ -331,7 +332,7 @@ for i in range(len(keywords)):
         va='bottom'
     )
 
-plt.show()
+#plt.show()
 
 
 
@@ -399,10 +400,47 @@ weight. This makes a lot of sense.
 
 ### Creating a semi-supervised classifier
 
+# Done...
+# - try labelspreading algorithm as this data definitely passes the clustering assumption.
+# - train doc2vec on 400 random document samples (toy example so not a huge amount of samples)
+# - using unsupervised learning (analysis of agglomerative clustering) assign class labels to these 400 samples
+
+# To do...
+# - select another 100 random documents from my scraped document dictionary
+# - use trained doc2vec to generate inferred embeddings for these 100 unseen docs using gensim's infer_vector method (https://datascience.stackexchange.com/questions/10612/doc2vecgensim-how-can-i-infer-unseen-sentences-label)
+# - create semi-supervised trained set, where the 100 unseen samples are labelled -1
+# - use scikit-learns label propagation algorithms to classify
+# - plot in 2D (tsne) with colour coded classes, and make the markers for the unseen 100 larger
+# - should hopefully see the classified instances residing in the same regions as their fellow class members
+
+# use our doc2vec model to infer a vector representation for another 100 unseen documents selected at random
+# from the scraped data
+d_unseen = dict( (k, d_data[k]) for k in random.sample(d_data, 100) )
+
+unseen_kws, unseen_descs = [], []
+for i in range(len(d_unseen)):
+    unseen_kws.append( d_unseen.keys()[i] )
+    unseen_descs.append( d_unseen.values()[i] )
+
+unseen_docs = []
+for doc in unseen_descs: unseen_docs.append( nlp_clean(doc) )
+
+# https://stackoverflow.com/questions/44993240/how-to-use-the-infer-vector-in-gensim-doc2vec
+unseen_docs_tagged = [ TaggedDocument(unseen_docs[i], [unseen_kws[i]]) for i in range(len(unseen_docs)) ]
+
+# preallocate array
+unseen_embeddings = np.empty(len(d_unseen) * 100).reshape(100, 100)
+
+for i in range(len(unseen_embeddings)):
+    unseen_embeddings[i] = model.infer_vector(unseen_docs_tagged[i][0])
+
+print unseen_embeddings
+print type(unseen_embeddings)
+print unseen_embeddings.shape
 
 
 
-
+### Create semi-supervised training set
 
 
 
