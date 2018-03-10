@@ -579,7 +579,8 @@ y:  5.0     y_hat:  [5.]
 #   instead of a circle if the iterant is in the stored -1 ixs
 
 # how does it look!?
-unseen_ixs = [ i for i in y if i == -1 ]
+unseen_ixs = [ i for i, elt in enumerate(y) if elt == -1.0 ]
+print unseen_ixs
 class_labels = [ elt if elt != -1 else label_propagation_model.predict(X[i].reshape(1,-1))[0] for i, elt in enumerate(y) ]
 
 dist_metric = 1.0 - cosine_similarity(X)
@@ -591,7 +592,7 @@ for i in range(len(X)):
     if i in unseen_ixs:
         plt.scatter( X_reduced[i, 0], X_reduced[i, 1], color=colours[ int(class_labels[i] - 1) ], s=20*2**4 )
     else:
-        plt.scatter( X_reduced[i, 0], X_reduced[i, 1], color=colours[ int(class_labels[i] - 1) ], s=20*2**1 )
+        plt.scatter( X_reduced[i, 0], X_reduced[i, 1], color=colours[ int(class_labels[i] - 1) ], s=20*2**2 )
 
 plt.show()
 
