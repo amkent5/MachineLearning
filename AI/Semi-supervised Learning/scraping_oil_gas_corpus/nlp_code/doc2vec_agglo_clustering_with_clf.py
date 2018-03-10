@@ -239,7 +239,7 @@ ax = dendrogram(
 
 plt.tight_layout() # show plot with tight layout
 plt.ylabel('Ward distance')
-#plt.show()
+plt.show()
 
 
 
@@ -258,7 +258,7 @@ ax = dendrogram(
 
 plt.xlabel('Number of merges in cluster')
 plt.ylabel('Ward distance')
-#plt.show()
+plt.show()
 
 # a large jump in distance is typically what we're interested in if we want to argue for
 # a certain number of clusters (https://joernhees.de/blog/2015/08/26/scipy-hierarchical-clustering-and-dendrogram-tutorial/)
@@ -278,7 +278,7 @@ ax = dendrogram(
 plt.axhline(y=max_dist, color='r', linestyle='--')
 plt.xlabel('Number of merges in cluster')
 plt.ylabel('Ward distance')
-#plt.show()
+plt.show()
 
 # knowing max_dist (our number of clusters) we can use the fcluster class to map each observation to a cluster id
 from scipy.cluster.hierarchy import fcluster
@@ -332,7 +332,7 @@ for i in range(len(keywords)):
         va='bottom'
     )
 
-#plt.show()
+plt.show()
 
 
 
@@ -579,6 +579,25 @@ y:  5.0     y_hat:  [5.]
 #   instead of a circle if the iterant is in the stored -1 ixs
 
 # how does it look!?
+unseen_ixs = [ i for i in y if i == -1 ]
+class_labels = [ elt if elt != -1 else label_propagation_model.predict(X[i].reshape(1,-1))[0] for i, elt in enumerate(y) ]
+
+dist_metric = 1.0 - cosine_similarity(X)
+tsne_model = TSNE(metric="precomputed")
+X_reduced = tsne_model.fit_transform( abs(dist_metric) )    # https://github.com/scikit-learn/scikit-learn/issues/5772
+
+colours = ['#F18F01', '#048BA8', '#2E4057', '#99C24D', '#FF2216', '#D4ADCF']
+for i in range(len(X)):
+    if i in unseen_ixs:
+        plt.scatter( X_reduced[i, 0], X_reduced[i, 1], color=colours[ int(class_labels[i] - 1) ], s=20*2**4 )
+    else:
+        plt.scatter( X_reduced[i, 0], X_reduced[i, 1], color=colours[ int(class_labels[i] - 1) ], s=20*2**1 )
+
+plt.show()
+
+
+
+
 
 
 
