@@ -81,7 +81,7 @@ network = []
 create_input_layer(network, input_dims=5, num_neurons=3)
 create_hidden_layer(network, input_dims=3, num_neurons=3)
 create_output_layer(network, input_dims=3, num_outputs=1)
-print network
+print (network)
 
 ### Neuron function
 """
@@ -112,7 +112,7 @@ def update_neuron_values(inputs, weights, activation_function):
 	inputs = [...]
 	weights = [[...], [...], ..., [...]]
 	"""
-	
+
 	# init matrix product
 	matrix_prod = []
 	for i in range(len(inputs)):
@@ -155,7 +155,7 @@ def backpropagate_like_a_motherfucker():
 
 # main
 def run_network(network, input_X, input_y, number_epoch, batch_size):
-	
+
 	i = 0
 	while i <= number_epoch:
 		i += 1
@@ -174,7 +174,7 @@ def run_network(network, input_X, input_y, number_epoch, batch_size):
 			delta = abs( input_y[j] - network[-1]['values'][0] )
 
 			# print some output (first hidden layers neuron values)
-			print network[0]['values'], '\t', network[1]['values'], '\t', network[2]['values'], '\t', delta
+			print ( network[0]['values'], '\t', network[1]['values'], '\t', network[2]['values'], '\t', delta )
 
 
 
@@ -186,10 +186,6 @@ y = []
 for i in range(10000):
 	X.append( [ round(random.random(), 0) for _ in range(5) ] )
 	y.append( round(random.random(), 0) )
-for row in X: print row
+for row in X: print (row)
 
 run_network(network, X, y, 5, 5)
-
-
-
-

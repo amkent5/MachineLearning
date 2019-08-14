@@ -5,12 +5,13 @@ import pickle
 import numpy as np
 
 #filename = '/Users/admin/Documents/Projects/MachineLearning/AI/Semi-supervised Learning/scraping_oil_gas_corpus/scraping_code/d_oil_and_gas_terms.pickle'
-filename = '/Users/Ash/Projects/MachineLearning/AI/Semi-supervised Learning/scraping_oil_gas_corpus/scraping_code/d_oil_and_gas_terms.pickle'
+#filename = '/Users/Ash/Projects/MachineLearning/AI/Semi-supervised Learning/scraping_oil_gas_corpus/scraping_code/d_oil_and_gas_terms.pickle'
+filename = '/Users/ash/Documents/Projects/MachineLearning/AI/Semi-supervised Learning/scraping_oil_gas_corpus/scraping_code/d_oil_and_gas_terms.pickle'
 with open(filename, 'rb') as handle:
     d_data = pickle.load(handle)
 
 # sample
-for k, v in d_data.items(): print k, '\n', v, '\n'*2
+for k, v in d_data.items(): print(k, '\n', v, '\n'*2)
 """
 
 forward multiple-contact test
@@ -48,25 +49,27 @@ from nltk.stem.snowball import SnowballStemmer
 
 # randomly sample 400 elements of the data dictionary
 # need the same result each time so pickle the cut down dict and load it in each time
-print len(d_data)	# 4931
+print(len(d_data))	# 4931
 #random_terms = '/Users/admin/Documents/Projects/MachineLearning/AI/Semi-supervised Learning/scraping_oil_gas_corpus/nlp_code/random_terms.pickle'
-random_terms = '/Users/Ash/Projects/MachineLearning/AI/Semi-supervised Learning/scraping_oil_gas_corpus/nlp_code/random_terms.pickle'
+#random_terms = '/Users/Ash/Projects/MachineLearning/AI/Semi-supervised Learning/scraping_oil_gas_corpus/nlp_code/random_terms.pickle'
+random_terms = '/Users/ash/Documents/Projects/MachineLearning/AI/Semi-supervised Learning/scraping_oil_gas_corpus/nlp_code/random_terms.pickle'
+
 if not os.path.isfile(random_terms):
-    d_data = dict( (k, d_data[k]) for k in random.sample(d_data, 400) )
+    d_data = dict( (k, d_data[k]) for k in random.sample(list(d_data), 400) )
     with open(random_terms, 'wb') as handle:
         pickle.dump(d_data, handle, protocol=pickle.HIGHEST_PROTOCOL)
 else:
     with open(random_terms, 'rb') as handle:
         d_data = pickle.load(handle)
 
-print len(d_data) # 400
-print d_data.keys()[0]
+print(len(d_data)) # 400
+print(list(d_data.keys())[0])
 
 # form keywords list and descriptions list
 keywords, descriptions = [], []
 for i in range(len(d_data)):
-    keywords.append( d_data.keys()[i] )
-    descriptions.append( d_data.values()[i] )
+    keywords.append( list(d_data.keys())[i] )
+    descriptions.append( list(d_data.values())[i] )
 
 # perform natural language cleaning
 stopwords = nltk.corpus.stopwords.words('english')
@@ -97,8 +100,8 @@ docs = []
 for doc in descriptions: docs.append( nlp_clean(doc) )
 
 # sample
-print descriptions[-1]
-print docs[-1]
+print(descriptions[-1])
+print(docs[-1])
 """
 
 A phenomenon of relative seismic velocities of strata whereby a shallow layer or feature with a high seismic 
@@ -121,7 +124,7 @@ from gensim.models.doc2vec import Doc2Vec, TaggedDocument
 # create tagged docs (https://github.com/RaRe-Technologies/gensim/issues/1542)
 # (tagging the docs allows us to easily extract the labels when doing doc similarity)
 docs_tagged = [ TaggedDocument(docs[i], [keywords[i]]) for i in range(len(docs)) ]
-print docs_tagged[0]
+print(docs_tagged[0])
 
 # initialise a model
 model = Doc2Vec(
@@ -145,14 +148,14 @@ model.train(docs_tagged, total_examples=len(docs_tagged), epochs=100)
 keyword1 = keywords[0]
 docvec = model.docvecs[0]
 
-print '\n'*2
-print keyword1
-print docvec
-print len(docvec)
+print('\n'*2)
+print(keyword1)
+print(docvec)
+print(len(docvec))
 
 # most similar document vectors (by their keyword)
 docsim = model.docvecs.most_similar( keyword1 )
-for i in range(10): print docsim[i]
+for i in range(10): print(docsim[i])
 
 """ Output:
 
@@ -194,16 +197,21 @@ mud-aging cell
 
 # create distance matrix
 from sklearn.metrics.pairwise import cosine_similarity
-dist = cosine_similarity(model.docvecs)	# note previously I have had dist = 1 - cs...
+print(np.asarray(model.docvecs))
+print(type(model.docvecs))
+
+dist = cosine_similarity(np.array(model.docvecs, object))
+#dist = cosine_similarity(np.asarray(model.docvecs))	# note previously I have had dist = 1 - cs...
+quit()
 
 
-print 'Zero''th doc vector:', '\n', model.docvecs[0], '\n'*3
-print 'Zero''th distance vector:', '\n',  dist[0], '\n'*3
-print 'N''th doc vector:', '\n', model.docvecs[-1], '\n'*3
-print 'N''th distance vector:', '\n', dist[-1], '\n'*3
+print('Zero''th doc vector:', '\n', model.docvecs[0], '\n'*3)
+print('Zero''th distance vector:', '\n',  dist[0], '\n'*3)
+print('N''th doc vector:', '\n', model.docvecs[-1], '\n'*3)
+print('N''th distance vector:', '\n', dist[-1], '\n'*3)
 
-print len(model.docvecs)
-print len(dist)
+print(len(model.docvecs))
+print(len(dist))
 
 # although the number of instance in model.docvecs and dist is the same (length 400), 
 # the length of each element is different. The length of each element of model.docvecs 
@@ -217,8 +225,8 @@ print len(dist)
 # between itself), and the last element of the last (n'th) dist vector is 1 (as this represents the cosine-similarity
 # between itself).
 
-print len(model.docvecs[0])
-print len(dist[0])
+print(len(model.docvecs[0]))
+print(len(dist[0]))
 
 
 
@@ -284,7 +292,7 @@ plt.show()
 from scipy.cluster.hierarchy import fcluster
 
 clusters = fcluster(linkage_matrix, max_dist, criterion='distance')
-print clusters
+print(clusters)
 """
 [2 5 4 2 6 3 1 4 1 2 5 1 1 1 4 5 4 1 2 4 3 2 5 5 3 1 1 5 4 2 1 1 1 2 3 3 1
  6 3 3 3 2 3 3 2 5 3 6 5 6 2 2 3 3 4 4 1 3 5 1 1 1 4 1 4 1 1 1 6 4 4 3 2 6
@@ -315,7 +323,7 @@ dist_metric = 1.0 - dist
 
 tsne_model = TSNE(metric="precomputed")
 X_reduced = tsne_model.fit_transform( abs(dist_metric) )    # https://github.com/scikit-learn/scikit-learn/issues/5772
-print X_reduced[:, 0], X_reduced[:, 1]
+print(X_reduced[:, 0], X_reduced[:, 1])
 
 #plt.scatter( X_reduced[:, 0], X_reduced[:, 1], s=20*2**4 )
 #plt.show()
@@ -359,15 +367,15 @@ for i in range(20):
     rix_1, rix_2 = random.randint(1, 399), random.randint(1, 399)
     vec_add = model.docvecs.most_similar( positive=[keywords[rix_1], keywords[rix_2]], topn=1 )
 
-    print keywords[rix_1]
-    print descriptions[rix_1], '\n'
+    print(keywords[rix_1])
+    print(descriptions[rix_1], '\n')
 
-    print keywords[rix_2]
-    print descriptions[rix_2], '\n'
+    print(keywords[rix_2])
+    print(descriptions[rix_2], '\n')
 
-    print 'Vector addition result:'
-    print vec_add[0][0]
-    print [ descriptions[i] for i in range(len(descriptions)) if keywords[i] == vec_add[0][0] ], '\n'*3
+    print('Vector addition result:')
+    print(vec_add[0][0])
+    print([ descriptions[i] for i in range(len(descriptions)) if keywords[i] == vec_add[0][0] ], '\n'*3)
 
 """
 Good results from the addition:
@@ -434,18 +442,18 @@ unseen_embeddings = np.empty(len(d_unseen) * 100).reshape(100, 100)
 for i in range(len(unseen_embeddings)):
     unseen_embeddings[i] = model.infer_vector(unseen_docs_tagged[i][0])
 
-print unseen_embeddings.shape
+print(unseen_embeddings.shape)
 
 
 
 ### Create semi-supervised training set
 X = np.append( np.asarray(model.docvecs), unseen_embeddings, axis=0 )
-print X
-print X.shape
+print(X)
+print(X.shape)
 
 y = np.append( clusters, np.array([-1 for _ in range(100)]))
-print y
-print y.shape
+print(y)
+print(y.shape)
 """
 [[ 0.07102136  0.05765504  0.11885613 ...  0.05068389 -0.14108109
   -0.00422394]
@@ -490,10 +498,10 @@ X_holding = np.hstack((X, y.reshape(len(y), 1)))
 np.random.shuffle(X_holding)
 X = X_holding[:, :-1]
 y = X_holding[:, -1]
-print X
-print y
-print X.shape
-print y.shape
+print(X)
+print(y)
+print(X.shape)
+print(y.shape)
 """
 [[-5.94303727e-01  4.62160796e-01  2.33045205e-01 ... -3.89433801e-01
    1.33214861e-01  4.69011277e-01]
@@ -546,7 +554,7 @@ label_propagation_model = LabelSpreading()
 label_propagation_model.fit(X, y)
 
 # make predictions for first twenty samples (some will be known, some unknown)
-for i in range(20): print 'y: ', y[i], '\t', 'y_hat: ', label_propagation_model.predict(X[i].reshape(1,-1))
+for i in range(20): print('y: ', y[i], '\t', 'y_hat: ', label_propagation_model.predict(X[i].reshape(1,-1)))
 """
 y:  6.0     y_hat:  [6.]
 y:  6.0     y_hat:  [6.]
@@ -580,7 +588,7 @@ y:  5.0     y_hat:  [5.]
 
 # how does it look!?
 unseen_ixs = [ i for i, elt in enumerate(y) if elt == -1.0 ]
-print unseen_ixs
+print(unseen_ixs)
 class_labels = [ elt if elt != -1 else label_propagation_model.predict(X[i].reshape(1,-1))[0] for i, elt in enumerate(y) ]
 
 dist_metric = 1.0 - cosine_similarity(X)

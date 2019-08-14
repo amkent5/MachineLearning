@@ -39,17 +39,17 @@ try:
 			restart_time = False		
 		
 		if not i % 10:
-			print 'Processed %i webpages' % i
-			print 'Time taken: ', time.time() - t0, '\n'
+			print('Processed %i webpages' % i)
+			print('Time taken: ', time.time() - t0, '\n')
 			restart_time = True
 
 except KeyboardInterrupt:
-	print 'Interrupted'
+	print('Interrupted')
 	for k, v in d_terms.items():
-		print k
-		print v
-		print '\n'
-	print len(d_terms)
+		print(k)
+		print(v)
+		print('\n')
+	print(len(d_terms))
 
 	# serialise
 	with open('d_oil_and_gas_terms.pickle', 'wb') as handle:
@@ -57,10 +57,10 @@ except KeyboardInterrupt:
 
 
 for k, v in d_terms.items():
-	print k
-	print v
-	print '\n'
-print len(d_terms)
+	print(k)
+	print(v)
+	print('\n')
+print(len(d_terms))
 
 # serialise
 with open('d_oil_and_gas_terms.pickle', 'wb') as handle:
